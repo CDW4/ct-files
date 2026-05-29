@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Weekly Recipe Book</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Jost:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #faf6ef;
+  --paper: #fff9f2;
+  --ink: #1c1208;
+  --gold: #b8832a;
+  --gold-light: #d4a855;
+  --rust: #8b3a1a;
+  --green: #2a5a30;
+  --blue: #1a3a5c;
+  --muted: #8a7a6a;
+  --border: #e8dcc8;
+  --surface: #f5ede0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Jost', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  max-width: 600px;
+  margin: 0 auto;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23b8832a' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* HEADER */
+.header {
+  background: linear-gradient(160deg, #2a1a08 0%, #1c1208 100%);
+  padding: 28px 22px 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+}
+.header::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.header-eye { font-size: 9px; letter-spacing: 5px; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+.header h1 { font-family: 'Cormorant Garamond', serif; font-size: 30px; color: #f5ead8; font-style: italic; letter-spacing: 0.5px; margin-bottom: 6px; }
+.header-sub { font-size: 11px; color: #7a6a5a; letter-spacing: 1px; }
+
+/* CATEGORY TABS */
+.cat-nav { display: flex; overflow-x: auto; background: var(--paper); border-bottom: 2px solid var(--border); }
+.cat-nav::-webkit-scrollbar { display: none; }
+.cat-btn { flex-shrink: 0; padding: 12px 14px; font-family: 'Jost', sans-serif; font-size: 11px; font-weight: 500; cursor: pointer; background: transparent; border: none; color: var(--muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; letter-spacing: 0.5px; white-space: nowrap; }
+.cat-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* RECIPE LIST */
+.recipe-list { padding: 16px; }
+.recipe-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(28,18,8,0.06);
+  transition: box-shadow 0.2s;
+}
+.recipe-card:active { box-shadow: 0 1px 4px rgba(28,18,8,0.04); }
+
+.recipe-header {
+  padding: 14px 16px 12px;
+  cursor: pointer;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.recipe-emoji { font-size: 28px; min-width: 36px; }
+.recipe-meta { flex: 1; }
+.recipe-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--ink); line-height: 1.2; margin-bottom: 4px; }
+.recipe-tagline { font-size: 11px; color: var(--muted); line-height: 1.4; margin-bottom: 6px; }
+.recipe-tags { display: flex; gap: 5px; flex-wrap: wrap; }
+.tag { font-size: 9px; font-weight: 500; letter-spacing: 0.5px; border-radius: 4px; padding: 2px 7px; border: 1px solid; }
+.tag-time { color: var(--gold); border-color: rgba(184,131,42,0.3); background: rgba(184,131,42,0.08); }
+.tag-batch { color: var(--green); border-color: rgba(42,90,48,0.3); background: rgba(42,90,48,0.08); }
+.tag-brain { color: var(--blue); border-color: rgba(26,58,92,0.3); background: rgba(26,58,92,0.08); }
+.tag-uti { color: var(--rust); border-color: rgba(139,58,26,0.3); background: rgba(139,58,26,0.08); }
+.tag-staple { color: #6a3a00; border-color: rgba(106,58,0,0.3); background: rgba(106,58,0,0.1); }
+.recipe-arrow { font-size: 12px; color: var(--muted); margin-top: 4px; flex-shrink: 0; }
+
+/* RECIPE BODY */
+.recipe-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+.recipe-body.open { display: block; }
+
+.recipe-section-title {
+  font-size: 9px; font-weight: 500; letter-spacing: 3px;
+  color: var(--gold); text-transform: uppercase;
+  margin: 14px 0 8px; padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* INGREDIENTS */
+.ingredients { display: flex; flex-direction: column; gap: 4px; }
+.ingredient { font-size: 13px; color: var(--ink); display: flex; gap: 8px; line-height: 1.4; padding: 3px 0; }
+.ing-amount { color: var(--gold); font-weight: 500; min-width: 60px; flex-shrink: 0; font-size: 12px; }
+.ing-name { flex: 1; }
+.ing-note { font-size: 11px; color: var(--muted); font-style: italic; }
+
+/* STEPS */
+.steps { display: flex; flex-direction: column; gap: 8px; }
+.step { display: flex; gap: 10px; align-items: flex-start; }
+.step-num { font-family: 'Cormorant Garamond', serif; font-size: 18px; color: var(--gold); font-weight: 600; min-width: 22px; line-height: 1.2; flex-shrink: 0; }
+.step-text { font-size: 13px; color: var(--ink); line-height: 1.6; padding-top: 1px; }
+.step-text strong { color: var(--rust); }
+
+/* TIPS BOX */
+.tips-box { background: var(--surface); border-left: 3px solid var(--gold); border-radius: 0 8px 8px 0; padding: 10px 12px; margin-top: 10px; }
+.tips-title { font-size: 9px; font-weight: 500; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 5px; }
+.tip-row { font-size: 12px; color: var(--muted); line-height: 1.5; margin-bottom: 3px; display: flex; gap: 5px; }
+
+/* NUTRITION STRIP */
+.nutrition-strip { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+.nutrient-tag { font-size: 10px; background: rgba(26,58,92,0.07); border: 1px solid rgba(26,58,92,0.15); border-radius: 4px; padding: 3px 8px; color: var(--blue); }
+
+/* SECTION DIVIDER */
+.section-divider { text-align: center; padding: 8px 0; color: var(--gold); font-size: 14px; opacity: 0.4; }
+
+/* CAT HEADER */
+.cat-header { padding: 14px 16px 4px; }
+.cat-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; color: var(--ink); font-style: italic; }
+.cat-note { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* FOOTER */
+.footer { background: #1c1208; padding: 16px; text-align: center; }
+.footer p { font-size: 10px; color: #6a5a4a; font-family: 'Cormorant Garamond', serif; font-style: italic; line-height: 1.7; }
+
+/* PRINT HINT */
+.print-hint { background: rgba(184,131,42,0.08); border: 1px solid rgba(184,131,42,0.2); border-radius: 8px; padding: 10px 14px; margin: 12px 16px 0; font-size: 11px; color: var(--gold); text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eye">Brain Health Kitchen</div>
+  <h1>Weekly Recipe Book</h1>
+  <div class="header-sub">Simple • Whole Food • Anti-Inflammatory</div>
+</div>
+
+<div class="print-hint">Tap any recipe to expand full ingredients + steps</div>
+
+<!-- CATEGORY TABS -->
+<div class="cat-nav">
+  <button class="cat-btn active" onclick="showCat('soups',this)">🥣 Soups</button>
+  <button class="cat-btn" onclick="showCat('proteins',this)">🍗 Proteins</button>
+  <button class="cat-btn" onclick="showCat('plates',this)">🍽️ Plates</button>
+  <button class="cat-btn" onclick="showCat('tips',this)">💡 Tips</button>
+</div>
+
+<!-- ===== SOUPS ===== -->
+<div id="cat-soups" class="recipe-list">
+  <div class="cat-header">
+    <div class="cat-title">Soups & Stews</div>
+    <div class="cat-note">Batch cook Sunday — reheat all week. The foundation of her nutrition.</div>
+  </div>
+
+  <!-- VEGETABLE SOUP -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🥦</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Classic Vegetable Soup</div>
+        <div class="recipe-tagline">The clean base — sneaks in everything. Endless variations.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 30 min</span>
+          <span class="tag tag-batch">📦 Batch</span>
+          <span class="tag tag-brain">🧠 Brain</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients — Makes 6 servings</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">3 tbsp</span><span class="ing-name">Extra virgin olive oil</span><span class="ing-note">always EVOO, never canola</span></div>
+        <div class="ingredient"><span class="ing-amount">4 cloves</span><span class="ing-name">Garlic, minced</span></div>
+        <div class="ingredient"><span class="ing-amount">1 large</span><span class="ing-name">Onion, diced</span></div>
+        <div class="ingredient"><span class="ing-amount">2 medium</span><span class="ing-name">Sweet potatoes, cubed</span></div>
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Broccoli florets</span></div>
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Carrots, sliced</span></div>
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Zucchini, chopped</span></div>
+        <div class="ingredient"><span class="ing-amount">3 cups</span><span class="ing-name">Spinach or kale</span><span class="ing-note">add last 5 min — wilts invisible</span></div>
+        <div class="ingredient"><span class="ing-amount">6 cups</span><span class="ing-name">Bone broth</span><span class="ing-note">always bone broth, not regular</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Turmeric</span></div>
+        <div class="ingredient"><span class="ing-amount">½ tsp</span><span class="ing-name">Black pepper</span><span class="ing-note">activates turmeric — always pair</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Lemon, juiced</span><span class="ing-note">finish only — iron absorption</span></div>
+        <div class="ingredient"><span class="ing-amount">Salt</span><span class="ing-name">Sea salt to taste</span></div>
+      </div>
+      <div class="recipe-section-title">Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Heat EVOO in large pot over medium. Add garlic and onion. Sauté <strong>5 minutes</strong> until soft and fragrant — this is the anti-inflammatory base.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Add sweet potato, carrots, and broccoli. Stir to coat in the oil. Cook <strong>3 minutes</strong>.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Pour in bone broth. Add turmeric, black pepper, and salt. Bring to a boil then reduce to simmer.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Simmer <strong>15–20 minutes</strong> until sweet potato is fork tender.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Add zucchini and spinach/kale. Cook <strong>5 more minutes</strong>. Spinach will wilt completely.</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text">Squeeze lemon juice over the top. Taste and adjust salt. Serve warm.</div></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Tips</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Rotate vegetables every batch — beets, asparagus, celery, bell pepper all work</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Blend half the soup for a creamier texture she may prefer</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Add a can of white beans for extra protein without changing the flavor</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Keeps refrigerated 5 days, freezes 3 months</div>
+      </div>
+      <div class="nutrition-strip">
+        <span class="nutrient-tag">Curcumin from turmeric</span>
+        <span class="nutrient-tag">Collagen from bone broth</span>
+        <span class="nutrient-tag">Beta-carotene</span>
+        <span class="nutrient-tag">Iron + Vitamin C</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LENTIL VEGGIE SOUP -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🫘</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Lentil Veggie Soup</div>
+        <div class="recipe-tagline">The hero meal. Sneaks in everything. Batch Sunday, eat all week.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 35 min</span>
+          <span class="tag tag-batch">📦 Batch</span>
+          <span class="tag tag-brain">🧠 Brain</span>
+          <span class="tag tag-staple">⭐ Hero</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients — Makes 8 servings</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">3 tbsp</span><span class="ing-name">Extra virgin olive oil</span></div>
+        <div class="ingredient"><span class="ing-amount">5 cloves</span><span class="ing-name">Garlic, minced</span></div>
+        <div class="ingredient"><span class="ing-amount">1 large</span><span class="ing-name">Onion, diced</span></div>
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Red or green lentils, rinsed</span></div>
+        <div class="ingredient"><span class="ing-amount">2 medium</span><span class="ing-name">Sweet potatoes, cubed</span></div>
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Broccoli florets</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Asparagus, chopped</span><span class="ing-note">UTI protective</span></div>
+        <div class="ingredient"><span class="ing-amount">3 cups</span><span class="ing-name">Spinach</span><span class="ing-note">add last — disappears</span></div>
+        <div class="ingredient"><span class="ing-amount">8 cups</span><span class="ing-name">Bone broth</span></div>
+        <div class="ingredient"><span class="ing-amount">1½ tsp</span><span class="ing-name">Turmeric</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Cumin</span></div>
+        <div class="ingredient"><span class="ing-amount">½ tsp</span><span class="ing-name">Black pepper</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Lemon, juiced</span></div>
+        <div class="ingredient"><span class="ing-amount">Optional</span><span class="ing-name">1 can sardines, blended in</span><span class="ing-note">B12 + DHA invisible</span></div>
+      </div>
+      <div class="recipe-section-title">Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">EVOO in large pot, medium heat. Sauté garlic and onion <strong>5 minutes</strong> until golden.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Add sweet potato and broccoli. Stir <strong>2 minutes</strong>.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Add rinsed lentils and bone broth. Stir in turmeric, cumin, black pepper, salt.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Bring to boil. Reduce to simmer. Cook <strong>20–25 minutes</strong> until lentils are fully soft.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Add asparagus and spinach. Simmer <strong>5 more minutes</strong>.</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text">If adding sardines — blend them into a small cup of the broth first, then stir into pot. Completely undetectable.</div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-text">Finish with lemon juice. Adjust salt. Serve warm with a drizzle of EVOO on top.</div></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Tips</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Red lentils dissolve into the soup — creamier. Green lentils hold shape — heartier.</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Iron from lentils + vitamin C from lemon = natural iron absorption boost</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>This is the one to make every Sunday without fail</div>
+      </div>
+      <div class="nutrition-strip">
+        <span class="nutrient-tag">Folate from lentils</span>
+        <span class="nutrient-tag">Iron + Vitamin C</span>
+        <span class="nutrient-tag">UTI protection</span>
+        <span class="nutrient-tag">Curcumin</span>
+        <span class="nutrient-tag">Gut healing collagen</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- FISH SOUP -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🐟</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Fish Soup</div>
+        <div class="recipe-tagline">UTI + brain + insulin in one bowl. Make this twice a week minimum.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 20 min</span>
+          <span class="tag tag-brain">🧠 Brain</span>
+          <span class="tag tag-uti">💊 UTI</span>
+          <span class="tag tag-staple">⭐ 2x/Week</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients — Makes 4 servings</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">3 tbsp</span><span class="ing-name">Extra virgin olive oil</span></div>
+        <div class="ingredient"><span class="ing-amount">4 cloves</span><span class="ing-name">Garlic, minced</span></div>
+        <div class="ingredient"><span class="ing-amount">1 medium</span><span class="ing-name">Onion, diced</span></div>
+        <div class="ingredient"><span class="ing-amount">1.5 lbs</span><span class="ing-name">Salmon or cod, cut in chunks</span><span class="ing-note">either works, both excellent</span></div>
+        <div class="ingredient"><span class="ing-amount">1 bunch</span><span class="ing-name">Asparagus, chopped 1-inch</span><span class="ing-note">UTI protective — key ingredient</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Diced tomatoes</span></div>
+        <div class="ingredient"><span class="ing-amount">5 cups</span><span class="ing-name">Bone broth</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Turmeric</span></div>
+        <div class="ingredient"><span class="ing-amount">½ tsp</span><span class="ing-name">Black pepper</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Lemon, juiced + zested</span></div>
+        <div class="ingredient"><span class="ing-amount">Fresh</span><span class="ing-name">Parsley, chopped to finish</span></div>
+      </div>
+      <div class="recipe-section-title">Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">EVOO in pot, medium heat. Sauté garlic and onion <strong>4 minutes</strong> until soft.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Add tomatoes. Cook <strong>2 minutes</strong>, stirring.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Pour in bone broth. Add turmeric, black pepper, lemon zest. Bring to gentle boil.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Add fish chunks and asparagus. Reduce to simmer. Cook <strong>10–12 minutes</strong> until fish flakes easily.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Squeeze lemon juice in. Add parsley. Taste and adjust salt. Serve immediately.</div></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Tips</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Don't overcook the fish — 10–12 min is enough, it continues cooking in the hot broth</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Frozen salmon or cod works perfectly — thaw overnight in fridge</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Add spinach in last 3 min for extra brain greens</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Best made fresh — doesn't reheat as well as the lentil soup</div>
+      </div>
+      <div class="nutrition-strip">
+        <span class="nutrient-tag">DHA + EPA omega-3</span>
+        <span class="nutrient-tag">UTI protection from asparagus</span>
+        <span class="nutrient-tag">Curcumin</span>
+        <span class="nutrient-tag">Collagen</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEAFOOD SOUP -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🦐</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Seafood Soup</div>
+        <div class="recipe-tagline">Shrimp, fish, and vegetables in a rich golden broth. Caribbean-inspired.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 25 min</span>
+          <span class="tag tag-brain">🧠 Brain</span>
+          <span class="tag tag-uti">💊 UTI</span>
+          <span class="tag tag-batch">🌍 Caribbean</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients — Makes 4 servings</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">3 tbsp</span><span class="ing-name">Extra virgin olive oil</span></div>
+        <div class="ingredient"><span class="ing-amount">5 cloves</span><span class="ing-name">Garlic, minced</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Onion, diced</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Bell pepper, diced</span></div>
+        <div class="ingredient"><span class="ing-amount">½ lb</span><span class="ing-name">Shrimp, peeled and deveined</span><span class="ing-note">zinc from food naturally</span></div>
+        <div class="ingredient"><span class="ing-amount">½ lb</span><span class="ing-name">Cod or salmon chunks</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Asparagus or okra, chopped</span></div>
+        <div class="ingredient"><span class="ing-amount">2</span><span class="ing-name">Sweet potatoes, cubed</span></div>
+        <div class="ingredient"><span class="ing-amount">1 can</span><span class="ing-name">Diced tomatoes</span></div>
+        <div class="ingredient"><span class="ing-amount">5 cups</span><span class="ing-name">Bone broth</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Turmeric</span></div>
+        <div class="ingredient"><span class="ing-amount">½ tsp</span><span class="ing-name">Thyme</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Lemon, juiced</span></div>
+        <div class="ingredient"><span class="ing-amount">Optional</span><span class="ing-name">Scotch bonnet pepper — tiny piece</span><span class="ing-note">authentic Caribbean flavor, use sparingly</span></div>
+      </div>
+      <div class="recipe-section-title">Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">EVOO in large pot. Sauté garlic, onion, and bell pepper <strong>5 minutes</strong>.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Add tomatoes and sweet potato. Cook <strong>3 minutes</strong> stirring.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Pour in bone broth. Add turmeric, thyme, scotch bonnet if using. Simmer <strong>10 minutes</strong> until sweet potato softens.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Add fish chunks and asparagus. Cook <strong>5 minutes</strong>.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Add shrimp last — cook just <strong>3 minutes</strong> until pink. Do not overcook shrimp.</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text">Squeeze lemon, adjust salt. Serve immediately.</div></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Tips</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Shrimp goes in LAST — always. Overcooked shrimp is rubbery and unpleasant.</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Okra thickens the broth naturally — Caribbean tradition and good for digestion</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>This is the most culturally resonant soup in the rotation for her background</div>
+      </div>
+      <div class="nutrition-strip">
+        <span class="nutrient-tag">Zinc from shrimp</span>
+        <span class="nutrient-tag">DHA from fish</span>
+        <span class="nutrient-tag">UTI protection</span>
+        <span class="nutrient-tag">Vitamin C from peppers</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== PROTEINS ===== -->
+<div id="cat-proteins" class="recipe-list" style="display:none">
+  <div class="cat-header">
+    <div class="cat-title">Proteins & Mains</div>
+    <div class="cat-note">Wings are her staple — rotate everything else around them.</div>
+  </div>
+
+  <!-- BAKED WINGS -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🍗</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Baked Garlic Herb Wings</div>
+        <div class="recipe-tagline">She will always eat these. Start at shift start — ready by lunch. Never fry.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 40 min</span>
+          <span class="tag tag-staple">⭐ Staple</span>
+          <span class="tag tag-batch">📦 Easy</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients — Serves 3–4</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">2–3 lbs</span><span class="ing-name">Chicken wings, whole or split</span></div>
+        <div class="ingredient"><span class="ing-amount">3 tbsp</span><span class="ing-name">Extra virgin olive oil</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Garlic powder</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Onion powder</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Paprika</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Dried thyme or Italian herbs</span></div>
+        <div class="ingredient"><span class="ing-amount">½ tsp</span><span class="ing-name">Black pepper</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Sea salt</span></div>
+        <div class="ingredient"><span class="ing-amount">Optional</span><span class="ing-name">Fresh garlic, minced — rub on wings</span></div>
+      </div>
+      <div class="recipe-section-title">Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Preheat oven to <strong>400°F</strong>. Pat wings completely dry with paper towel — this is key to crispiness.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">In a large bowl, toss wings with EVOO and all seasonings. Coat every wing thoroughly.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Arrange on baking sheet in single layer — do not crowd. Use a rack over the pan if available for crispier skin.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Bake <strong>35–40 minutes</strong>, flipping once at the 20-minute mark. Wings are done when golden and skin is crisp.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Rest <strong>5 minutes</strong> before serving. Pair with roasted sweet potato and steamed or roasted broccoli.</div></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Tips</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Caretaker tip: put wings in oven at 9am — ready exactly at lunch with zero attention</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Sweet potato cubes can roast on same sheet at same temp — same pan, different area</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Make double batch — wings reheat well, use for dinner too with different sides</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Never sauce with store-bought sauces — they're loaded with sugar. EVOO + herbs is the formula.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BAKED SALMON -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🐟</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Baked Salmon + Greens</div>
+        <div class="recipe-tagline">15 minutes. Omega-3 powerhouse. Pair with whatever greens are on hand.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 15 min</span>
+          <span class="tag tag-brain">🧠 Brain</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients — Serves 2</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">2 fillets</span><span class="ing-name">Salmon (6–8 oz each)</span></div>
+        <div class="ingredient"><span class="ing-amount">3 tbsp</span><span class="ing-name">Extra virgin olive oil</span></div>
+        <div class="ingredient"><span class="ing-amount">3 cloves</span><span class="ing-name">Garlic, minced</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Lemon, sliced + juiced</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Dried herbs (thyme, rosemary, or dill)</span></div>
+        <div class="ingredient"><span class="ing-amount">Salt + pepper</span><span class="ing-name">To season</span></div>
+        <div class="ingredient"><span class="ing-amount">4 cups</span><span class="ing-name">Kale or spinach</span><span class="ing-note">sautéed as side</span></div>
+        <div class="ingredient"><span class="ing-amount">1 bunch</span><span class="ing-name">Asparagus (optional side)</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Brown rice (cooked)</span><span class="ing-note">if serving as full plate</span></div>
+      </div>
+      <div class="recipe-section-title">Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Preheat oven to <strong>375°F</strong>. Line baking sheet with parchment.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Place salmon skin-side down. Drizzle EVOO generously. Rub with garlic, herbs, salt, and pepper. Lay lemon slices on top.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Bake <strong>12–15 minutes</strong> until salmon flakes easily with a fork. Do not overbake — it should still be slightly darker pink in center.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">While salmon bakes — heat EVOO in pan. Sauté garlic 1 min, add kale or spinach. Cook <strong>4–5 minutes</strong> until wilted. Season with lemon and salt.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Plate salmon over rice with greens and asparagus alongside. Squeeze fresh lemon over everything.</div></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Tips</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Frozen salmon works — thaw in fridge overnight or cold water 30 min</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>The rice makes this a complete satisfying plate — she'll feel full and nourished</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Asparagus on the side adds UTI protection to a brain-health meal</div>
+      </div>
+      <div class="nutrition-strip">
+        <span class="nutrient-tag">DHA + EPA</span>
+        <span class="nutrient-tag">Vitamin K from kale</span>
+        <span class="nutrient-tag">UTI from asparagus</span>
+        <span class="nutrient-tag">Complete protein</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+  <!-- YELLOW CURRY -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🍛</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Yellow Curry</div>
+        <div class="recipe-tagline">Turmeric-rich, coconut milk base, Caribbean-familiar. Batch cooks beautifully — better day two.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 30 min</span>
+          <span class="tag tag-brain">🧠 Brain</span>
+          <span class="tag tag-batch">📦 Batch</span>
+          <span class="tag tag-cultural">🌍 Caribbean</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients — Makes 5 servings</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">3 tbsp</span><span class="ing-name">Extra virgin olive oil</span></div>
+        <div class="ingredient"><span class="ing-amount">5 cloves</span><span class="ing-name">Garlic, minced</span></div>
+        <div class="ingredient"><span class="ing-amount">1 large</span><span class="ing-name">Onion, diced</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Bell pepper, diced</span></div>
+        <div class="ingredient"><span class="ing-amount">2 tbsp</span><span class="ing-name">Yellow curry paste</span><span class="ing-note">Maesri or Thai Kitchen — check no added sugar</span></div>
+        <div class="ingredient"><span class="ing-amount">1.5 lbs</span><span class="ing-name">Chicken thighs, cubed — OR shrimp — OR salmon chunks</span></div>
+        <div class="ingredient"><span class="ing-amount">2 medium</span><span class="ing-name">Sweet potatoes, cubed</span><span class="ing-note">best curry vegetable for her</span></div>
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Broccoli florets</span></div>
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Spinach</span><span class="ing-note">add last — wilts invisible</span></div>
+        <div class="ingredient"><span class="ing-amount">1 can</span><span class="ing-name">Full fat coconut milk</span><span class="ing-note">not light — the fat is the point</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Bone broth</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Turmeric</span><span class="ing-note">adds to the curry paste benefit</span></div>
+        <div class="ingredient"><span class="ing-amount">½ tsp</span><span class="ing-name">Black pepper</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Lemon, juiced</span></div>
+        <div class="ingredient"><span class="ing-amount">Serve over</span><span class="ing-name">Brown rice or cauliflower rice</span></div>
+      </div>
+      <div class="recipe-section-title">Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Heat EVOO in large pot medium heat. Sauté garlic, onion, and bell pepper <strong>5 minutes</strong> until soft.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Add curry paste. Stir into the vegetables and cook <strong>2 minutes</strong> — this blooms the spices and builds flavor.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Add sweet potato and broccoli. Stir to coat in curry base <strong>2 minutes</strong>.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Pour in coconut milk and bone broth. Add turmeric and black pepper. Stir well. Bring to gentle boil.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Add protein — chicken thighs need <strong>15 minutes</strong>, shrimp needs <strong>3 minutes</strong>, salmon needs <strong>8 minutes</strong>. Add accordingly.</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text">Add spinach last <strong>3 minutes</strong> before serving. Stir in lemon juice. Taste and adjust salt.</div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-text">Serve over brown rice or cauliflower rice. Drizzle EVOO on top.</div></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Tips</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Tastes better day 2 and 3 as flavors deepen — perfect Sunday batch cook</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Full fat coconut milk only — do not substitute light coconut milk</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Check curry paste label for added sugar — Maesri and Thai Kitchen are clean</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Cauliflower rice instead of brown rice for lower insulin spike</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Caribbean and West African food traditions both have curry roots — culturally familiar for her</div>
+      </div>
+      <div class="nutrition-strip">
+        <span class="nutrient-tag">Curcumin from turmeric + curry</span>
+        <span class="nutrient-tag">Healthy fat from coconut milk</span>
+        <span class="nutrient-tag">Anti-inflammatory base</span>
+        <span class="nutrient-tag">Beta-carotene from sweet potato</span>
+      </div>
+    </div>
+  </div>
+
+<!-- ===== PLATES ===== -->
+<div id="cat-plates" class="recipe-list" style="display:none">
+  <div class="cat-header">
+    <div class="cat-title">Plates & Bowls</div>
+    <div class="cat-note">Full meals with protein, starch, and greens together. Simple and satisfying.</div>
+  </div>
+
+  <!-- FISH PLATE WITH GREENS AND RICE -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🍽️</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Fish Plate with Greens & Rice</div>
+        <div class="recipe-tagline">Pan-seared fish, garlic greens, brown rice. Clean complete meal. 20 minutes.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 20 min</span>
+          <span class="tag tag-brain">🧠 Brain</span>
+          <span class="tag tag-uti">💊 UTI</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients — Serves 2</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">2 fillets</span><span class="ing-name">Cod, tilapia, or salmon</span></div>
+        <div class="ingredient"><span class="ing-amount">3 tbsp</span><span class="ing-name">Extra virgin olive oil</span></div>
+        <div class="ingredient"><span class="ing-amount">4 cloves</span><span class="ing-name">Garlic, minced</span></div>
+        <div class="ingredient"><span class="ing-amount">1</span><span class="ing-name">Lemon</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Paprika</span></div>
+        <div class="ingredient"><span class="ing-amount">4 cups</span><span class="ing-name">Collard greens or kale, chopped</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Brown rice, cooked</span><span class="ing-note">pre-cook Sunday batch</span></div>
+        <div class="ingredient"><span class="ing-amount">Salt + pepper</span><span class="ing-name">To taste</span></div>
+      </div>
+      <div class="recipe-section-title">Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Season fish with paprika, salt, pepper, and a squeeze of lemon on both sides.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Heat EVOO in skillet over medium-high. Place fish presentation-side down. Cook <strong>4 minutes</strong> without moving — this builds a golden crust.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Flip fish gently. Cook <strong>3–4 more minutes</strong> until cooked through. Remove and rest.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">In same pan, add remaining EVOO and garlic. Sauté <strong>1 minute</strong>. Add collard greens or kale.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Add 2 tbsp water, cover, steam <strong>5 minutes</strong> until greens are tender. Season with salt and lemon.</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text">Plate: rice base, fish on top, greens alongside. Drizzle EVOO, squeeze fresh lemon.</div></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Tips</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Brown rice pre-cooked Sunday — just reheat with a splash of water or broth</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Collard greens are culturally familiar and deeply nutritious — first choice here</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Don't skip the lemon at the end — it brightens everything and helps iron absorption</div>
+      </div>
+      <div class="nutrition-strip">
+        <span class="nutrient-tag">DHA from fish</span>
+        <span class="nutrient-tag">Vitamin K from greens</span>
+        <span class="nutrient-tag">Complete meal</span>
+        <span class="nutrient-tag">Iron + Vitamin C</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUFFED BELL PEPPERS -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🫑</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Stuffed Bell Peppers</div>
+        <div class="recipe-tagline">Colorful, complete, and she loves them. Bake and serve — simple.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 35 min</span>
+          <span class="tag tag-brain">🧠 Brain</span>
+          <span class="tag tag-batch">📦 Batch</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Ingredients — Serves 4</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">4 large</span><span class="ing-name">Bell peppers, halved lengthwise, seeds removed</span><span class="ing-note">mix colors if possible</span></div>
+        <div class="ingredient"><span class="ing-amount">1 lb</span><span class="ing-name">Ground turkey or lean ground beef</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Cooked quinoa or brown rice</span></div>
+        <div class="ingredient"><span class="ing-amount">3 cloves</span><span class="ing-name">Garlic, minced</span></div>
+        <div class="ingredient"><span class="ing-amount">1 small</span><span class="ing-name">Onion, finely diced</span></div>
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Spinach, roughly chopped</span></div>
+        <div class="ingredient"><span class="ing-amount">1 can</span><span class="ing-name">Diced tomatoes, drained</span></div>
+        <div class="ingredient"><span class="ing-amount">2 tbsp</span><span class="ing-name">Tomato paste</span></div>
+        <div class="ingredient"><span class="ing-amount">2 tbsp</span><span class="ing-name">Extra virgin olive oil</span></div>
+        <div class="ingredient"><span class="ing-amount">1 tsp</span><span class="ing-name">Cumin</span></div>
+        <div class="ingredient"><span class="ing-amount">½ tsp</span><span class="ing-name">Paprika</span></div>
+        <div class="ingredient"><span class="ing-amount">Salt + pepper</span><span class="ing-name">To taste</span></div>
+      </div>
+      <div class="recipe-section-title">Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text">Preheat oven to <strong>375°F</strong>. Arrange halved peppers cut-side up in baking dish. Brush lightly with EVOO.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text">Heat EVOO in skillet. Sauté garlic and onion <strong>3 minutes</strong>. Add ground turkey or beef. Cook until browned, breaking apart, <strong>6–8 minutes</strong>.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text">Add spinach, tomatoes, tomato paste, quinoa, cumin, paprika, salt, pepper. Stir and cook <strong>3 minutes</strong> until combined.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text">Spoon filling generously into each pepper half. Press down firmly to pack.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text">Cover dish with foil. Bake <strong>25 minutes</strong>. Remove foil, bake <strong>5 more minutes</strong> for slight char on top.</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text">Rest 5 minutes. Drizzle EVOO and fresh herbs to finish.</div></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Tips</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Make a full tray — refrigerates 4 days, reheats in microwave in 2 minutes</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Colorful peppers are visually appealing — dementia patients respond to colorful plates</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Red and orange peppers are sweeter and more familiar than green</div>
+      </div>
+      <div class="nutrition-strip">
+        <span class="nutrient-tag">Complete protein</span>
+        <span class="nutrient-tag">Vitamin C from peppers</span>
+        <span class="nutrient-tag">Iron + C together</span>
+        <span class="nutrient-tag">Folate from spinach</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOWL -->
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🥗</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Brain Health Bowl</div>
+        <div class="recipe-tagline">Build-your-own bowl. Easiest weekday lunch — 10 minutes using batch-cooked components.</div>
+        <div class="recipe-tags">
+          <span class="tag tag-time">⏱ 10 min</span>
+          <span class="tag tag-brain">🧠 Brain</span>
+          <span class="tag tag-staple">⭐ Easiest</span>
+        </div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="recipe-section-title">Base — Pick One</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Brown rice (pre-cooked Sunday)</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Quinoa (pre-cooked Sunday)</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Lentils (from Sunday soup batch)</span></div>
+      </div>
+      <div class="recipe-section-title">Protein — Pick One</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">4–6 oz</span><span class="ing-name">Rotisserie chicken, pulled (bought Sunday)</span></div>
+        <div class="ingredient"><span class="ing-amount">4–6 oz</span><span class="ing-name">Baked salmon, flaked</span></div>
+        <div class="ingredient"><span class="ing-amount">4–6 oz</span><span class="ing-name">Leftover baked wings, pulled</span></div>
+        <div class="ingredient"><span class="ing-amount">½ cup</span><span class="ing-name">Chickpeas, rinsed (canned — simplest)</span></div>
+      </div>
+      <div class="recipe-section-title">Greens — Pick One or Two</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Spinach, sautéed in garlic + EVOO</span></div>
+        <div class="ingredient"><span class="ing-amount">2 cups</span><span class="ing-name">Kale, massaged with EVOO + lemon</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Roasted broccoli or beets</span></div>
+        <div class="ingredient"><span class="ing-amount">1 cup</span><span class="ing-name">Roasted sweet potato cubes (pre-roasted Sunday)</span></div>
+      </div>
+      <div class="recipe-section-title">Always Finish With</div>
+      <div class="ingredients">
+        <div class="ingredient"><span class="ing-amount">2 tbsp</span><span class="ing-name">Extra virgin olive oil drizzle</span></div>
+        <div class="ingredient"><span class="ing-amount">½</span><span class="ing-name">Lemon, squeezed over everything</span></div>
+        <div class="ingredient"><span class="ing-amount">Pinch</span><span class="ing-name">Sea salt + black pepper</span></div>
+        <div class="ingredient"><span class="ing-amount">2</span><span class="ing-name">Brazil nuts on the side — always</span></div>
+      </div>
+      <div class="tips-box">
+        <div class="tips-title">💡 Why This Works</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Everything is pre-cooked Sunday — caretaker just assembles in 10 minutes</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Different combination every day means she never eats the same bowl twice</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>EVOO + lemon finish every single time — the protocol in two ingredients</div>
+        <div class="tip-row"><span style="color:var(--gold)">→</span>Brazil nuts on the side covers daily selenium without any pills</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== TIPS ===== -->
+<div id="cat-tips" class="recipe-list" style="display:none">
+  <div class="cat-header">
+    <div class="cat-title">Kitchen Rules & Tips</div>
+    <div class="cat-note">The principles that make every meal brain-healthy automatically.</div>
+  </div>
+
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">📦</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Sunday Batch Cook Checklist</div>
+        <div class="recipe-tagline">2 hours Sunday = stress-free cooking all week for caretakers.</div>
+        <div class="recipe-tags"><span class="tag tag-batch">📦 Weekly Prep</span></div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div class="step-text"><strong>Large pot lentil veggie soup</strong> — covers Mon, Tue, Wed lunches. Most important batch item.</div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-text"><strong>Roasted sweet potato cubes</strong> — 2–3 large sweet potatoes cubed, tossed in EVOO, roasted 400°F 25 min. Goes into bowls, soups, sides all week.</div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-text"><strong>Brown rice or quinoa</strong> — large pot. Refrigerates 5 days. Base for bowls and fish plates all week.</div></div>
+        <div class="step"><div class="step-num">4</div><div class="step-text"><strong>Rotisserie chicken</strong> — buy one, pull apart, refrigerate. Easiest lunch protein all week.</div></div>
+        <div class="step"><div class="step-num">5</div><div class="step-text"><strong>Black beans</strong> — if doing Caribbean breakfasts. Large pot, garlic, cumin, EVOO. Reheat in 3 minutes.</div></div>
+        <div class="step"><div class="step-num">6</div><div class="step-text"><strong>Saltfish</strong> — if doing Caribbean breakfasts. Soak overnight Friday, cook Saturday, refrigerates 4 days.</div></div>
+        <div class="step"><div class="step-num">7</div><div class="step-text"><strong>Hard boil 6 eggs</strong> — quick add-on all week for breakfasts and bowls.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🫙</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">The Sneak-In Master Guide</div>
+        <div class="recipe-tagline">How to get every nutrient in without her noticing.</div>
+        <div class="recipe-tags"><span class="tag tag-brain">🧠 Nutrients</span></div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="steps">
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>Spinach/kale:</strong> Add to every soup in last 5 minutes. Wilts completely invisible. Zero taste change.</div></div>
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>Turmeric:</strong> Add to every soup and every egg dish. Low dose doesn't change flavor noticeably.</div></div>
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>Black pepper:</strong> Always pair with turmeric — activates curcumin absorption by 2000%.</div></div>
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>Bone broth:</strong> Replace ALL water in soups with bone broth. Invisible upgrade, massive nutritional difference.</div></div>
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>Sardines:</strong> Blend into a small cup of hot broth first, then stir into any fish or lentil soup. Completely undetectable. Full B12 and DHA from food.</div></div>
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>Brazil nuts:</strong> 2 beside every breakfast plate — full selenium RDA, no pill needed.</div></div>
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>Pumpkin seeds:</strong> Sprinkle on every oatmeal or grits. Zinc from food, no pill needed.</div></div>
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>EVOO finish:</strong> Drizzle on every finished plate and soup bowl. Polyphenols, anti-inflammatory, absorbs fat-soluble vitamins.</div></div>
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>Lemon finish:</strong> Squeeze over every soup, plate, and green vegetable. Boosts iron absorption from greens naturally.</div></div>
+        <div class="step"><div class="step-num">→</div><div class="step-text"><strong>Goat milk in oatmeal:</strong> Replace all water in oatmeal with goat milk. More nutritious, creamier, she prefers it.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recipe-card">
+    <div class="recipe-header" onclick="toggleRecipe(this)">
+      <div class="recipe-emoji">🚫</div>
+      <div class="recipe-meta">
+        <div class="recipe-name">Never Cook With These</div>
+        <div class="recipe-tagline">Symptoms proved this. The liquid diet period confirmed it. Non-negotiable.</div>
+        <div class="recipe-tags"><span class="tag tag-uti">⚠️ Protocol</span></div>
+      </div>
+      <div class="recipe-arrow">▼</div>
+    </div>
+    <div class="recipe-body">
+      <div class="steps">
+        <div class="step"><div class="step-num">×</div><div class="step-text"><strong>Canola, vegetable, or seed oils</strong> — replace with EVOO always. No exceptions.</div></div>
+        <div class="step"><div class="step-num">×</div><div class="step-text"><strong>Refined sugar</strong> — in any form including flavored sauces, store-bought marinades, ketchup-based glazes.</div></div>
+        <div class="step"><div class="step-num">×</div><div class="step-text"><strong>Fast food or fried food</strong> — symptoms returned immediately when this came back. Do not reintroduce.</div></div>
+        <div class="step"><div class="step-num">×</div><div class="step-text"><strong>Store-bought wing sauces</strong> — loaded with sugar and seed oils. Season with EVOO + garlic + herbs only.</div></div>
+        <div class="step"><div class="step-num">×</div><div class="step-text"><strong>White rice as only starch</strong> — always pair with protein and greens to prevent insulin spike.</div></div>
+        <div class="step"><div class="step-num">×</div><div class="step-text"><strong>Processed soups with high sodium</strong> — 365 soups approved but check sodium label. Under 600mg per serving target.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>"What she eats is medicine.<br>Cook with intention every time."<br>
+  <span style="font-size:9px;color:#4a3a2a">Add new recipes as the rotation grows.</span></p>
+</div>
+
+<script>
+function showCat(id, btn) {
+  document.querySelectorAll('.recipe-list').forEach(l => l.style.display = 'none');
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('cat-' + id).style.display = 'block';
+  btn.classList.add('active');
+}
+
+function toggleRecipe(header) {
+  var body = header.nextElementSibling;
+  var arrow = header.querySelector('.recipe-arrow');
+  var isOpen = body.classList.contains('open');
+  document.querySelectorAll('.recipe-body.open').forEach(b => {
+    b.classList.remove('open');
+    b.previousElementSibling.querySelector('.recipe-arrow').textContent = '▼';
+  });
+  if (!isOpen) {
+    body.classList.add('open');
+    arrow.textContent = '▲';
+    setTimeout(function() { header.scrollIntoView({behavior:'smooth', block:'start'}); }, 100);
+  }
+}
+</script>
+</body>
+</html>

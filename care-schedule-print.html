@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Weekly Care Schedule — Print Version</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Serif+4:wght@300;400;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Source Serif 4', Georgia, serif; background: #fff; color: #1a1a2e; padding: 20px; max-width: 900px; margin: 0 auto; }
+
+  .page-title { font-family: 'Playfair Display', serif; font-size: 28px; text-align: center; color: #1a1a2e; margin-bottom: 4px; }
+  .page-sub { font-size: 11px; text-align: center; color: #888; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .page-tagline { font-size: 12px; text-align: center; color: #555; margin-bottom: 18px; font-style: italic; }
+
+  /* SUPPLEMENT BANNER */
+  .supp-banner { background: #f0f8f0; border: 1.5px solid #b0d0b0; border-radius: 8px; padding: 10px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .supp-col { flex: 1; min-width: 180px; }
+  .supp-col-title { font-size: 9px; font-weight: 700; letter-spacing: 2px; color: #4a7a4a; margin-bottom: 4px; text-transform: uppercase; }
+  .supp-col-items { font-size: 11px; color: #2a5a2a; line-height: 1.6; }
+  .supp-food-col { flex: 2; }
+
+  /* WEEK GRID */
+  .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 14px; }
+  .day-col { border: 1.5px solid #ddd; border-radius: 8px; overflow: hidden; }
+  .day-header { padding: 7px 6px; text-align: center; color: #fff; }
+  .day-header .day-name { font-family: 'Playfair Display', serif; font-size: 13px; }
+  .day-header .day-theme { font-size: 8px; opacity: 0.85; margin-top: 1px; }
+  .day-header .day-flags { font-size: 10px; margin-top: 2px; }
+  .day-body { padding: 6px; }
+  .shift { margin-bottom: 6px; }
+  .shift-label { font-size: 8px; font-weight: 700; letter-spacing: 1px; color: #888; text-transform: uppercase; margin-bottom: 3px; padding-bottom: 2px; border-bottom: 1px solid #eee; }
+  .shift-item { font-size: 9px; color: #333; line-height: 1.4; margin-bottom: 2px; display: flex; gap: 3px; }
+  .shift-time { color: #888; min-width: 26px; font-size: 8px; }
+  .shift-icon { min-width: 12px; }
+  .shift-text { flex: 1; }
+  .highlight-item { color: #1a4a8a; font-weight: 600; }
+  .staple-item { color: #7a3a00; font-weight: 600; }
+
+  /* BOTTOM PANELS */
+  .bottom-panels { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .panel { border: 1.5px solid #ddd; border-radius: 8px; padding: 10px; }
+  .panel-title { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px; padding-bottom: 4px; border-bottom: 1px solid #eee; }
+  .panel-item { font-size: 10px; color: #333; margin-bottom: 3px; line-height: 1.4; display: flex; gap: 4px; }
+
+  /* AVOID + NOTES */
+  .footer-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .avoid-panel { border: 1.5px solid #ffcccc; background: #fff8f8; border-radius: 8px; padding: 10px; }
+  .avoid-title { font-size: 10px; font-weight: 700; color: #c0392b; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px; }
+  .avoid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+  .avoid-item { font-size: 9px; color: #a05050; display: flex; gap: 3px; line-height: 1.3; }
+  .notes-panel { border: 1.5px solid #ddd; border-radius: 8px; padding: 10px; }
+  .notes-title { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 7px; color: #555; }
+  .notes-lines { display: flex; flex-direction: column; gap: 8px; }
+  .notes-line { border-bottom: 1px solid #eee; height: 16px; }
+
+  .print-footer { text-align: center; font-size: 9px; color: #aaa; margin-top: 10px; font-style: italic; }
+
+  @media print {
+    body { padding: 10px; }
+    @page { margin: 0.5cm; size: A4 landscape; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-title">Daily Care Schedule</div>
+<div class="page-sub">Personalized Dementia Care Protocol</div>
+<div class="page-tagline">Movement • Sunlight • Social Rhythm • Purpose • Whole Food Nutrition</div>
+
+<!-- SUPPLEMENT BANNER -->
+<div class="supp-banner">
+  <div class="supp-col">
+    <div class="supp-col-title">🌅 Morning Supplements (with food)</div>
+    <div class="supp-col-items">• D3/K2 — Pure Encapsulations<br>• Omega-3 — Nordic Naturals<br>• Curcumin Elite — Life Extension</div>
+  </div>
+  <div class="supp-col">
+    <div class="supp-col-title">🌙 Evening Supplements (with snack)</div>
+    <div class="supp-col-items">• Magnesium Glycinate — Bronson<br>• Women's Probiotic — Culturelle/Garden of Life</div>
+  </div>
+  <div class="supp-col supp-food-col">
+    <div class="supp-col-title">🥗 From Food (no pill needed)</div>
+    <div class="supp-col-items">B12: eggs, salmon, sardines &nbsp;|&nbsp; Selenium: 2 brazil nuts daily &nbsp;|&nbsp; Zinc: pumpkin seeds on oatmeal &nbsp;|&nbsp; Potassium: sweet potato, banana, coconut water</div>
+  </div>
+</div>
+
+<!-- WEEK GRID -->
+<div class="week-grid">
+
+  <!-- MONDAY -->
+  <div class="day-col">
+    <div class="day-header" style="background:linear-gradient(135deg,#2D6A4F,#52B788)">
+      <div class="day-name">Monday</div>
+      <div class="day-theme">Activate & Explore</div>
+      <div class="day-flags">🏋️ MWF</div>
+    </div>
+    <div class="day-body">
+      <div class="shift">
+        <div class="shift-label">CG-A 8am–3pm</div>
+        <div class="shift-item highlight-item"><span class="shift-time">9:00</span><span class="shift-icon">🏋️</span><span class="shift-text">Kinetic Fitness 30min</span></div>
+        <div class="shift-item"><span class="shift-time">10:30</span><span class="shift-icon">🌳</span><span class="shift-text">Neighborhood park walk</span></div>
+        <div class="shift-item"><span class="shift-time">12:00</span><span class="shift-icon">🥣</span><span class="shift-text">Lentil Soup or Wings</span></div>
+        <div class="shift-item"><span class="shift-time">2:00</span><span class="shift-icon">🛒</span><span class="shift-text">Grocery outing</span></div>
+      </div>
+      <div class="shift">
+        <div class="shift-label">CG-B 3pm–8pm</div>
+        <div class="shift-item"><span class="shift-time">3:00</span><span class="shift-icon">🎵</span><span class="shift-text">Music walk — active</span></div>
+        <div class="shift-item"><span class="shift-time">4:00</span><span class="shift-icon">📸</span><span class="shift-text">Sibling photo review</span></div>
+        <div class="shift-item"><span class="shift-time">5:00</span><span class="shift-icon">🍽️</span><span class="shift-text">Fish Soup or Salmon</span></div>
+        <div class="shift-item"><span class="shift-time">7:30</span><span class="shift-icon">💊</span><span class="shift-text">PM supplements</span></div>
+        <div class="shift-item"><span class="shift-time">7:45</span><span class="shift-icon">🥛</span><span class="shift-text">Goat milk + honey</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TUESDAY -->
+  <div class="day-col">
+    <div class="day-header" style="background:linear-gradient(135deg,#1B4F72,#2E86C1)">
+      <div class="day-name">Tuesday</div>
+      <div class="day-theme">Community & Nourish</div>
+      <div class="day-flags">🏋️ TTh &nbsp; 👥 Agape</div>
+    </div>
+    <div class="day-body">
+      <div class="shift">
+        <div class="shift-label">CG-A 8am–3pm</div>
+        <div class="shift-item highlight-item"><span class="shift-time">9:00</span><span class="shift-icon">🏋️</span><span class="shift-text">Kinetic Fitness 30min</span></div>
+        <div class="shift-item highlight-item"><span class="shift-time">10:30</span><span class="shift-icon">👥</span><span class="shift-text">Agape Day Center</span></div>
+        <div class="shift-item"><span class="shift-time">12:00</span><span class="shift-icon">🥗</span><span class="shift-text">Lunch at Agape</span></div>
+        <div class="shift-item"><span class="shift-time">2:30</span><span class="shift-icon">🏛️</span><span class="shift-text">Agape pickup — debrief</span></div>
+      </div>
+      <div class="shift">
+        <div class="shift-label">CG-B 3pm–8pm</div>
+        <div class="shift-item"><span class="shift-time">3:00</span><span class="shift-icon">🌳</span><span class="shift-text">City park walk</span></div>
+        <div class="shift-item"><span class="shift-time">4:00</span><span class="shift-icon">🌿</span><span class="shift-text">Home task together</span></div>
+        <div class="shift-item staple-item"><span class="shift-time">5:00</span><span class="shift-icon">🍽️</span><span class="shift-text">Wings + Roasted Veg ⭐</span></div>
+        <div class="shift-item"><span class="shift-time">7:30</span><span class="shift-icon">💊</span><span class="shift-text">PM supplements</span></div>
+        <div class="shift-item"><span class="shift-time">7:45</span><span class="shift-icon">🥛</span><span class="shift-text">Goat milk + honey</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEDNESDAY -->
+  <div class="day-col">
+    <div class="day-header" style="background:linear-gradient(135deg,#6C3483,#A569BD)">
+      <div class="day-name">Wednesday</div>
+      <div class="day-theme">Explore & Discover</div>
+      <div class="day-flags">🏋️ MWF</div>
+    </div>
+    <div class="day-body">
+      <div class="shift">
+        <div class="shift-label">CG-A 8am–3pm</div>
+        <div class="shift-item highlight-item"><span class="shift-time">9:00</span><span class="shift-icon">🏋️</span><span class="shift-text">Kinetic Fitness 30min</span></div>
+        <div class="shift-item"><span class="shift-time">10:30</span><span class="shift-icon">📚</span><span class="shift-text">Library visit</span></div>
+        <div class="shift-item"><span class="shift-time">12:00</span><span class="shift-icon">🥣</span><span class="shift-text">Turkey Soup or Sardine Bowl</span></div>
+        <div class="shift-item"><span class="shift-time">2:00</span><span class="shift-icon">🌸</span><span class="shift-text">Farmers Market w/ husband</span></div>
+      </div>
+      <div class="shift">
+        <div class="shift-label">CG-B 3pm–8pm</div>
+        <div class="shift-item"><span class="shift-time">3:00</span><span class="shift-icon">🌅</span><span class="shift-text">Sunset walk — active</span></div>
+        <div class="shift-item"><span class="shift-time">4:00</span><span class="shift-icon">🎨</span><span class="shift-text">Creative activity together</span></div>
+        <div class="shift-item"><span class="shift-time">5:00</span><span class="shift-icon">🍽️</span><span class="shift-text">Lentil Beet Stew</span></div>
+        <div class="shift-item"><span class="shift-time">7:30</span><span class="shift-icon">💊</span><span class="shift-text">PM supplements</span></div>
+        <div class="shift-item"><span class="shift-time">7:45</span><span class="shift-icon">🫖</span><span class="shift-text">Chamomile or goat milk</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THURSDAY -->
+  <div class="day-col">
+    <div class="day-header" style="background:linear-gradient(135deg,#784212,#CA6F1E)">
+      <div class="day-name">Thursday</div>
+      <div class="day-theme">Strength & Social</div>
+      <div class="day-flags">🏋️ TTh &nbsp; 👥 Agape</div>
+    </div>
+    <div class="day-body">
+      <div class="shift">
+        <div class="shift-label">CG-A 8am–3pm</div>
+        <div class="shift-item highlight-item"><span class="shift-time">9:00</span><span class="shift-icon">🏋️</span><span class="shift-text">Kinetic Fitness 30min</span></div>
+        <div class="shift-item highlight-item"><span class="shift-time">10:30</span><span class="shift-icon">👥</span><span class="shift-text">Agape Day Center</span></div>
+        <div class="shift-item"><span class="shift-time">12:00</span><span class="shift-icon">🥗</span><span class="shift-text">Lunch at Agape</span></div>
+        <div class="shift-item"><span class="shift-time">2:30</span><span class="shift-icon">🏛️</span><span class="shift-text">Agape pickup — debrief</span></div>
+      </div>
+      <div class="shift">
+        <div class="shift-label">CG-B 3pm–8pm</div>
+        <div class="shift-item"><span class="shift-time">3:00</span><span class="shift-icon">🏞️</span><span class="shift-text">Park — watch local game</span></div>
+        <div class="shift-item"><span class="shift-time">4:00</span><span class="shift-icon">🛍️</span><span class="shift-text">Light errand outing</span></div>
+        <div class="shift-item"><span class="shift-time">5:00</span><span class="shift-icon">🍽️</span><span class="shift-text">Salmon + Greens or Shrimp</span></div>
+        <div class="shift-item"><span class="shift-time">7:30</span><span class="shift-icon">💊</span><span class="shift-text">PM supplements</span></div>
+        <div class="shift-item"><span class="shift-time">7:45</span><span class="shift-icon">🥛</span><span class="shift-text">Goat milk + honey</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FRIDAY -->
+  <div class="day-col">
+    <div class="day-header" style="background:linear-gradient(135deg,#1A5276,#17A589)">
+      <div class="day-name">Friday</div>
+      <div class="day-theme">Self-Care & Joy</div>
+      <div class="day-flags">🏋️ MWF &nbsp; 👨‍👩‍👧 Family</div>
+    </div>
+    <div class="day-body">
+      <div class="shift">
+        <div class="shift-label">CG-A 8am–3pm</div>
+        <div class="shift-item highlight-item"><span class="shift-time">9:00</span><span class="shift-icon">🏋️</span><span class="shift-text">Kinetic Fitness 30min</span></div>
+        <div class="shift-item"><span class="shift-time">10:30</span><span class="shift-icon">💅</span><span class="shift-text">Hair / nails / self-care</span></div>
+        <div class="shift-item"><span class="shift-time">12:00</span><span class="shift-icon">🥗</span><span class="shift-text">Lunch — her choice</span></div>
+        <div class="shift-item"><span class="shift-time">2:00</span><span class="shift-icon">🌳</span><span class="shift-text">Neighborhood park walk</span></div>
+      </div>
+      <div class="shift">
+        <div class="shift-label">CG-B 3pm–8pm</div>
+        <div class="shift-item"><span class="shift-time">3:00</span><span class="shift-icon">👨‍👩‍👧</span><span class="shift-text">Family visit ★ Priority</span></div>
+        <div class="shift-item"><span class="shift-time">5:00</span><span class="shift-icon">🍦</span><span class="shift-text">Dessert outing w/ family</span></div>
+        <div class="shift-item staple-item"><span class="shift-time">6:00</span><span class="shift-icon">🍽️</span><span class="shift-text">Family dinner — Wings ⭐</span></div>
+        <div class="shift-item"><span class="shift-time">7:30</span><span class="shift-icon">💊</span><span class="shift-text">PM supplements</span></div>
+        <div class="shift-item"><span class="shift-time">7:45</span><span class="shift-icon">🥛</span><span class="shift-text">Goat milk + honey</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SATURDAY -->
+  <div class="day-col">
+    <div class="day-header" style="background:linear-gradient(135deg,#1E8449,#27AE60)">
+      <div class="day-name">Saturday</div>
+      <div class="day-theme">Nature & Family</div>
+      <div class="day-flags">🏋️ Optional &nbsp; 👨 Husband</div>
+    </div>
+    <div class="day-body">
+      <div class="shift">
+        <div class="shift-label">CG-A 8am–3pm</div>
+        <div class="shift-item"><span class="shift-time">9:00</span><span class="shift-icon">🏋️</span><span class="shift-text">Kinetic (if 3x/wk)</span></div>
+        <div class="shift-item"><span class="shift-time">10:30</span><span class="shift-icon">🌺</span><span class="shift-text">Botanical Garden w/ husband</span></div>
+        <div class="shift-item"><span class="shift-time">12:30</span><span class="shift-icon">🌸</span><span class="shift-text">Farmers Market w/ husband</span></div>
+        <div class="shift-item"><span class="shift-time">2:00</span><span class="shift-icon">🚶</span><span class="shift-text">Mall walk or pet store</span></div>
+      </div>
+      <div class="shift">
+        <div class="shift-label">CG-B 3pm–8pm</div>
+        <div class="shift-item"><span class="shift-time">3:00</span><span class="shift-icon">🌳</span><span class="shift-text">Park walk — active</span></div>
+        <div class="shift-item"><span class="shift-time">4:00</span><span class="shift-icon">🎵</span><span class="shift-text">Dancing to music</span></div>
+        <div class="shift-item staple-item"><span class="shift-time">5:00</span><span class="shift-icon">🍽️</span><span class="shift-text">Wings + Roasted Veg ⭐</span></div>
+        <div class="shift-item"><span class="shift-time">7:30</span><span class="shift-icon">💊</span><span class="shift-text">PM supplements</span></div>
+        <div class="shift-item"><span class="shift-time">7:45</span><span class="shift-icon">🥛</span><span class="shift-text">Goat milk + honey</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUNDAY -->
+  <div class="day-col">
+    <div class="day-header" style="background:linear-gradient(135deg,#7B241C,#E74C3C)">
+      <div class="day-name">Sunday</div>
+      <div class="day-theme">Spirit & Rest</div>
+      <div class="day-flags">⛪ Church &nbsp; 👨‍👩‍👧 Brunch</div>
+    </div>
+    <div class="day-body">
+      <div class="shift">
+        <div class="shift-label">CG-A 8am–3pm</div>
+        <div class="shift-item"><span class="shift-time">8:30</span><span class="shift-icon">⛪</span><span class="shift-text">Church w/ husband</span></div>
+        <div class="shift-item"><span class="shift-time">10:30</span><span class="shift-icon">👨‍👩‍👧</span><span class="shift-text">Family brunch</span></div>
+        <div class="shift-item"><span class="shift-time">12:00</span><span class="shift-icon">🌳</span><span class="shift-text">Post-brunch walk</span></div>
+        <div class="shift-item"><span class="shift-time">1:30</span><span class="shift-icon">😴</span><span class="shift-text">Afternoon rest</span></div>
+      </div>
+      <div class="shift">
+        <div class="shift-label">CG-B 3pm–8pm</div>
+        <div class="shift-item"><span class="shift-time">3:00</span><span class="shift-icon">🎵</span><span class="shift-text">Music + gentle movement</span></div>
+        <div class="shift-item"><span class="shift-time">4:00</span><span class="shift-icon">🌿</span><span class="shift-text">Simple task together</span></div>
+        <div class="shift-item"><span class="shift-time">5:00</span><span class="shift-icon">🍽️</span><span class="shift-text">Fish Soup or Lentil Soup</span></div>
+        <div class="shift-item"><span class="shift-time">7:30</span><span class="shift-icon">💊</span><span class="shift-text">PM supplements</span></div>
+        <div class="shift-item"><span class="shift-time">7:45</span><span class="shift-icon">🥛</span><span class="shift-text">Goat milk + honey</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM PANELS -->
+<div class="bottom-panels">
+  <div class="panel">
+    <div class="panel-title" style="color:#1E8449">📍 Key Locations</div>
+    <div class="panel-item">🏋️ <strong>Kinetic Fitness</strong> — Rockwall TX (~20 min)</div>
+    <div class="panel-item">👥 <strong>Agape Day Center</strong> — (972) 354-9455</div>
+    <div class="panel-item" style="font-size:9px;color:#888;margin-left:16px">1025 Gross Rd, Mesquite TX</div>
+    <div class="panel-item">🏛️ <strong>Beyond Care (backup)</strong> — (469) 596-4488</div>
+    <div class="panel-item">🌳 Neighborhood park — daily default</div>
+    <div class="panel-item">🌸 Farmers Market — w/ husband or budget</div>
+  </div>
+  <div class="panel">
+    <div class="panel-title" style="color:#784212">🥗 Meal Staples</div>
+    <div class="panel-item">⭐ <strong>Wings</strong> — baked, garlic herb, EVOO. Always eats.</div>
+    <div class="panel-item">⭐ <strong>Lentil Veggie Soup</strong> — sneak-in hero meal</div>
+    <div class="panel-item">⭐ <strong>Fish Soup</strong> — UTI + brain + insulin protective</div>
+    <div class="panel-item">🥛 Warm goat milk + honey — every night, non-negotiable</div>
+    <div class="panel-item">🥜 2 brazil nuts daily — selenium from food</div>
+    <div class="panel-item">🌰 Pumpkin seeds on oatmeal — zinc from food</div>
+  </div>
+  <div class="panel">
+    <div class="panel-title" style="color:#1B4F72">💙 Caretaker Rules</div>
+    <div class="panel-item">✊ Both caretakers must be ACTIVE, not passive</div>
+    <div class="panel-item">📵 No phones during active engagement hours</div>
+    <div class="panel-item">🔄 Same routine, same order, every day</div>
+    <div class="panel-item">🏠 Handoffs happen at home — no café at 3pm</div>
+    <div class="panel-item">💬 Therapeutic fibbing is OK for distress</div>
+    <div class="panel-item">📸 Use sibling photos as daily conversation</div>
+  </div>
+</div>
+
+<!-- AVOID + NOTES -->
+<div class="footer-row">
+  <div class="avoid-panel">
+    <div class="avoid-title">🚫 Always Avoid</div>
+    <div class="avoid-grid">
+      <div class="avoid-item"><span style="color:#c0392b">×</span>Loud or chaotic venues</div>
+      <div class="avoid-item"><span style="color:#c0392b">×</span>Café near 3pm handoff</div>
+      <div class="avoid-item"><span style="color:#c0392b">×</span>Long inactive stretches</div>
+      <div class="avoid-item"><span style="color:#c0392b">×</span>Caffeine after 2pm</div>
+      <div class="avoid-item"><span style="color:#c0392b">×</span>Arguing with delusions</div>
+      <div class="avoid-item"><span style="color:#c0392b">×</span>Restraint of any kind</div>
+      <div class="avoid-item"><span style="color:#c0392b">×</span>Forcing husband separation</div>
+      <div class="avoid-item"><span style="color:#c0392b">×</span>Screens close to bed</div>
+    </div>
+  </div>
+  <div class="notes-panel">
+    <div class="notes-title">📝 Caretaker Notes</div>
+    <div class="notes-lines">
+      <div class="notes-line"></div>
+      <div class="notes-line"></div>
+      <div class="notes-line"></div>
+      <div class="notes-line"></div>
+      <div class="notes-line"></div>
+    </div>
+  </div>
+</div>
+
+<div class="print-footer">
+  "One outing every single day. Consistency over intensity." — Living document, update as the plan evolves.
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Daily Meal Menu</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Crimson+Pro:wght@300;400;600&display=swap');
+
+:root {
+  --bg: #0e0c08;
+  --warm: #f5ead8;
+  --gold: #c9933a;
+  --gold-light: #e8b96a;
+  --muted: #6b5e48;
+  --surface: rgba(255,255,255,0.04);
+  --border: rgba(201,147,58,0.2);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Crimson Pro', 'Georgia', serif;
+  background: var(--bg);
+  color: var(--warm);
+  min-height: 100vh;
+  max-width: 600px;
+  margin: 0 auto;
+  background-image: radial-gradient(ellipse at 20% 20%, rgba(201,147,58,0.06) 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 80%, rgba(139,90,43,0.08) 0%, transparent 60%);
+}
+
+/* HEADER */
+.header {
+  padding: 28px 24px 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 60%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.header-eyebrow {
+  font-size: 9px; letter-spacing: 5px; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 30px; color: var(--warm);
+  letter-spacing: 0.5px; margin-bottom: 6px;
+  font-style: italic;
+}
+.header-sub { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+/* MEAL RHYTHM */
+.rhythm-bar {
+  display: flex; justify-content: center; gap: 0;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.rhythm-step {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 10px; position: relative;
+}
+.rhythm-step:not(:last-child)::after {
+  content: '→';
+  position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
+  color: var(--gold); font-size: 10px; opacity: 0.5;
+}
+.rhythm-icon { font-size: 16px; margin-bottom: 3px; }
+.rhythm-label { font-size: 9px; color: var(--gold); font-weight: 600; letter-spacing: 1px; white-space: nowrap; }
+.rhythm-time { font-size: 9px; color: var(--muted); white-space: nowrap; }
+
+/* SECTION TABS */
+.tab-nav {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border);
+}
+.tab-btn {
+  flex: 1; padding: 12px 8px; text-align: center;
+  font-family: 'Crimson Pro', serif;
+  font-size: 12px; cursor: pointer;
+  background: transparent; border: none;
+  color: var(--muted); letter-spacing: 0.5px;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+}
+.tab-btn.active {
+  color: var(--gold-light);
+  border-bottom: 2px solid var(--gold);
+}
+
+/* CONTENT */
+.tab-content { display: none; padding: 20px; }
+.tab-content.active { display: block; }
+
+/* AVOID BANNER */
+.avoid-banner {
+  background: rgba(180,50,50,0.08);
+  border: 1px solid rgba(180,50,50,0.25);
+  border-radius: 10px; padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.avoid-banner-title {
+  font-size: 10px; font-weight: 600; color: #c05050;
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px;
+}
+.avoid-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.avoid-tag {
+  font-size: 11px; color: #a06060;
+  display: flex; gap: 5px; align-items: center; line-height: 1.3;
+}
+
+/* BREAKFAST SECTION */
+.section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 6px;
+}
+.section-icon { font-size: 24px; }
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; color: var(--gold-light);
+}
+.section-note {
+  font-size: 11px; color: var(--muted);
+  margin-bottom: 16px; font-style: italic;
+  padding-left: 36px;
+}
+
+/* MENU CARDS */
+.menu-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px 16px;
+  margin-bottom: 10px; cursor: pointer;
+  transition: all 0.2s;
+  position: relative; overflow: hidden;
+}
+.menu-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.menu-card.open::before { opacity: 1; }
+.menu-card:hover { border-color: rgba(201,147,58,0.35); }
+.card-top {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 10px;
+}
+.card-left { display: flex; gap: 10px; align-items: flex-start; flex: 1; }
+.card-emoji { font-size: 22px; min-width: 28px; margin-top: 1px; }
+.card-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px; color: var(--warm);
+  line-height: 1.3;
+}
+.card-origin {
+  font-size: 10px; color: var(--gold);
+  letter-spacing: 1px; text-transform: uppercase;
+  margin-top: 2px;
+}
+.card-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+.badge {
+  font-size: 9px; border-radius: 4px;
+  padding: 2px 6px; font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.badge-brain { background: rgba(41,128,185,0.15); color: #5aa8d8; border: 1px solid rgba(41,128,185,0.25); }
+.badge-quick { background: rgba(39,174,96,0.15); color: #5dc48a; border: 1px solid rgba(39,174,96,0.25); }
+.badge-prep { background: rgba(243,156,18,0.15); color: #e8a83a; border: 1px solid rgba(243,156,18,0.25); }
+.badge-staple { background: rgba(231,76,60,0.15); color: #e87060; border: 1px solid rgba(231,76,60,0.25); }
+.badge-cultural { background: rgba(155,89,182,0.15); color: #b07ad8; border: 1px solid rgba(155,89,182,0.25); }
+.card-arrow {
+  font-size: 11px; color: var(--muted);
+  margin-top: 4px; flex-shrink: 0;
+}
+.card-body {
+  display: none; margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(201,147,58,0.12);
+}
+.card-body.open { display: block; }
+.card-desc {
+  font-size: 13px; color: #9a8a74;
+  line-height: 1.7; margin-bottom: 8px;
+}
+.card-how { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.card-how strong { color: #c8a878; }
+.card-nutrients {
+  display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px;
+}
+.nutrient {
+  font-size: 9px; background: rgba(201,147,58,0.08);
+  border: 1px solid rgba(201,147,58,0.15);
+  border-radius: 4px; padding: 2px 7px;
+  color: var(--gold); letter-spacing: 0.5px;
+}
+
+/* DRINKS SECTION */
+.drinks-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; margin-top: 4px;
+}
+.drink-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px;
+  text-align: center;
+}
+.drink-icon { font-size: 24px; margin-bottom: 5px; }
+.drink-name { font-size: 12px; font-weight: 600; color: var(--warm); margin-bottom: 3px; }
+.drink-note { font-size: 10px; color: var(--muted); line-height: 1.4; }
+
+/* SNACK SECTION */
+.snack-row { display: flex; flex-direction: column; gap: 7px; }
+.snack-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 9px; padding: 10px 13px;
+  display: flex; gap: 10px; align-items: center;
+}
+.snack-icon { font-size: 18px; min-width: 24px; }
+.snack-name { font-size: 13px; color: var(--warm); font-weight: 600; margin-bottom: 2px; }
+.snack-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+/* MEAL FREQUENCY */
+.freq-grid { display: flex; flex-direction: column; gap: 8px; }
+.freq-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.freq-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px; color: var(--gold);
+  min-width: 28px; line-height: 1;
+}
+.freq-title { font-size: 13px; font-weight: 600; color: var(--warm); margin-bottom: 2px; }
+.freq-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+/* DIVIDER */
+.gold-divider {
+  height: 1px; width: 100%;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 16px 0; opacity: 0.3;
+}
+
+/* FOOTER */
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 16px; text-align: center;
+  position: relative;
+}
+.footer::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 40%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.footer p { font-size: 10px; color: var(--muted); font-style: italic; line-height: 1.7; }
+
+/* FOOD RULES */
+.rules-box {
+  background: rgba(201,147,58,0.05);
+  border: 1px solid rgba(201,147,58,0.18);
+  border-radius: 10px; padding: 14px;
+  margin-bottom: 16px;
+}
+.rules-title { font-size: 10px; font-weight: 600; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+.rule-row { font-size: 12px; color: #9a8a74; margin-bottom: 5px; display: flex; gap: 6px; line-height: 1.4; }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eyebrow">Personalized Nutrition Protocol</div>
+  <h1>Daily Meal Menu</h1>
+  <div class="header-sub">Whole food • Brain protective • Anti-inflammatory<br>Inspired by Blue Zone & Caribbean traditions</div>
+</div>
+
+<!-- MEAL RHYTHM -->
+<div class="rhythm-bar">
+  <div class="rhythm-step">
+    <div class="rhythm-icon">🌅</div>
+    <div class="rhythm-label">Breakfast</div>
+    <div class="rhythm-time">8:00am</div>
+  </div>
+  <div class="rhythm-step">
+    <div class="rhythm-icon">🍎</div>
+    <div class="rhythm-label">Snack</div>
+    <div class="rhythm-time">10:30am</div>
+  </div>
+  <div class="rhythm-step">
+    <div class="rhythm-icon">☀️</div>
+    <div class="rhythm-label">Lunch</div>
+    <div class="rhythm-time">12:30pm</div>
+  </div>
+  <div class="rhythm-step">
+    <div class="rhythm-icon">🌿</div>
+    <div class="rhythm-label">Snack</div>
+    <div class="rhythm-time">3:30pm</div>
+  </div>
+  <div class="rhythm-step">
+    <div class="rhythm-icon">🌙</div>
+    <div class="rhythm-label">Dinner</div>
+    <div class="rhythm-time">5:30pm</div>
+  </div>
+  <div class="rhythm-step">
+    <div class="rhythm-icon">🥛</div>
+    <div class="rhythm-label">Wind-Down</div>
+    <div class="rhythm-time">7:45pm</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('breakfast',this)">🌅 Breakfast</button>
+  <button class="tab-btn" onclick="showTab('lunch',this)">☀️ Lunch</button>
+  <button class="tab-btn" onclick="showTab('dinner',this)">🌙 Dinner</button>
+  <button class="tab-btn" onclick="showTab('snacks',this)">🍎 Snacks</button>
+  <button class="tab-btn" onclick="showTab('rules',this)">⚠️ Rules</button>
+</div>
+
+<!-- BREAKFAST TAB -->
+<div id="tab-breakfast" class="tab-content active">
+
+  <div class="section-header" style="margin-top:4px">
+    <div class="section-icon">🌅</div>
+    <div class="section-title">Choose Today's Breakfast</div>
+  </div>
+  <div class="section-note">Within 30 min of waking — non-negotiable. Always serve with green or herbal tea.</div>
+
+  <!-- BRAIN OMELETTE -->
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🍳</div>
+        <div>
+          <div class="card-name">Brain Omelette + Toast</div>
+          <div class="card-origin">Universal • 8 min</div>
+          <div class="card-badges">
+            <span class="badge badge-brain">🧠 Brain</span>
+            <span class="badge badge-quick">⚡ Quick</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">3 eggs, fresh spinach, garlic, diced bell pepper, EVOO in the pan. Fold and serve with whole grain toast and avocado slices. 2 brazil nuts on the side every time.</div>
+      <div class="card-how"><strong>How:</strong> EVOO in pan, sauté garlic 1 min, add spinach + pepper, pour beaten eggs over, fold when set. Toast bread. Slice avocado. Done.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">B12 from eggs</span>
+        <span class="nutrient">Folate</span>
+        <span class="nutrient">Selenium from brazil nuts</span>
+        <span class="nutrient">Potassium from avocado</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRITS / OATMEAL / MALT-O-MEAL -->
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🥣</div>
+        <div>
+          <div class="card-name">Grits, Oatmeal, or Malt-O-Meal</div>
+          <div class="card-origin">Southern • Blue Zone • 5–10 min</div>
+          <div class="card-badges">
+            <span class="badge badge-brain">🧠 Brain</span>
+            <span class="badge badge-quick">⚡ Quick</span>
+            <span class="badge badge-cultural">🌍 Cultural</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Cook in goat milk instead of water for extra nutrition. Base toppings always: honey, walnuts, 2 brazil nuts, pumpkin seeds. Then cooker adds their own touch — berries, banana, cinnamon, nutmeg, butter.</div>
+      <div class="card-how"><strong>Grits:</strong> Stone ground, cooked in bone broth or goat milk, garlic butter (EVOO), pinch turmeric, soft egg on top.<br><strong>Oatmeal:</strong> Rolled oats, goat milk, blueberries, walnuts, honey drizzle, pumpkin seeds.<br><strong>Malt-O-Meal:</strong> Goat milk, banana slices, almond butter swirl, honey.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Selenium from brazil nuts</span>
+        <span class="nutrient">Zinc from pumpkin seeds</span>
+        <span class="nutrient">Omega-3 from walnuts</span>
+        <span class="nutrient">Antioxidants from berries</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- GREEK YOGURT PARFAIT -->
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🫙</div>
+        <div>
+          <div class="card-name">Greek Yogurt Parfait</div>
+          <div class="card-origin">Mediterranean • 3 min • Zero cooking</div>
+          <div class="card-badges">
+            <span class="badge badge-quick">⚡ Quickest</span>
+            <span class="badge badge-brain">🧠 Brain</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Chobani full fat plain Greek yogurt as the base — never flavored. Layer toppings from bottom to top for the best texture and visual appeal.</div>
+      <div class="card-how"><strong>Build it:</strong> Full fat Chobani plain → mixed berries → walnuts + 2 brazil nuts → drizzle raw honey → sprinkle pumpkin seeds → optional light granola on top.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Probiotics from yogurt</span>
+        <span class="nutrient">Selenium from brazil nuts</span>
+        <span class="nutrient">Zinc from pumpkin seeds</span>
+        <span class="nutrient">Antioxidants from berries</span>
+        <span class="nutrient">Protein</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLACK BEANS RICE EGGS -->
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🫘</div>
+        <div>
+          <div class="card-name">Black Beans, Rice & Eggs</div>
+          <div class="card-origin">Costa Rica Blue Zone • Batch cook</div>
+          <div class="card-badges">
+            <span class="badge badge-brain">🧠 Brain</span>
+            <span class="badge badge-cultural">🌍 Blue Zone</span>
+            <span class="badge badge-prep">📦 Batch Cook</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Gallo pinto style — the breakfast eaten by one of the longest-lived populations on earth. Beans and rice cooked Sunday, reheated in minutes. Eggs fried or scrambled fresh on top.</div>
+      <div class="card-how"><strong>Sunday prep:</strong> Cook large pot of black beans with garlic, onion, cumin, EVOO. Cook brown rice. Refrigerate both separately.<br><strong>Morning:</strong> Reheat beans + rice in pan 3 min, fry or scramble 2 eggs, serve together. Add sliced avocado and hot sauce if tolerated.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Plant protein</span>
+        <span class="nutrient">Fiber</span>
+        <span class="nutrient">Iron</span>
+        <span class="nutrient">B12 from eggs</span>
+        <span class="nutrient">Potassium from avocado</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SALTFISH BAKE MANGO -->
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🐟</div>
+        <div>
+          <div class="card-name">Saltfish, Bread & Mango</div>
+          <div class="card-origin">Caribbean • Jamaica/Trinidad • Batch cook</div>
+          <div class="card-badges">
+            <span class="badge badge-cultural">🌍 Caribbean</span>
+            <span class="badge badge-prep">📦 Batch Cook</span>
+            <span class="badge badge-staple">⭐ Cultural Staple</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Saltfish sautéed with onion, tomato, garlic, scotch bonnet (optional), EVOO. Served with hard dough bread or whole grain toast and fresh mango slices. Culturally familiar and deeply nourishing.</div>
+      <div class="card-how"><strong>Sunday batch:</strong> Soak saltfish overnight to remove excess salt. Boil 10 min, flake apart. Sauté with onion, tomato, garlic, EVOO. Refrigerate up to 4 days.<br><strong>Morning:</strong> Reheat saltfish 3 min. Toast bread. Slice fresh mango. Serve together.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">B12 from saltfish</span>
+        <span class="nutrient">Omega-3</span>
+        <span class="nutrient">Vitamin C from mango</span>
+        <span class="nutrient">Potassium from mango</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- KACHAVA SMOOTHIE -->
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🥤</div>
+        <div>
+          <div class="card-name">Kachava Smoothie</div>
+          <div class="card-origin">Quick option • Low appetite days • 2 min</div>
+          <div class="card-badges">
+            <span class="badge badge-quick">⚡ Easiest</span>
+            <span class="badge badge-prep">📦 Low Appetite</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Use when appetite is low or caretaker is pressed for time. Check Kachava label against her supplement stack — avoid doubling D3, magnesium, or omega-3 on the same morning.</div>
+      <div class="card-how"><strong>Base blend:</strong> 1 scoop Kachava + goat milk or coconut milk + frozen banana + handful spinach + ice. Blend 60 seconds.<br><strong>Add:</strong> Walnuts or almond butter for healthy fat. 2 brazil nuts on the side still required.<br><strong>Note:</strong> Real food breakfast preferred — use Kachava max 2x per week.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Check label for overlap</span>
+        <span class="nutrient">Brazil nuts still required</span>
+      </div>
+    </div>
+  </div>
+
+  
+    <div class="meal-item" onclick="toggleMeal(this)">
+      <div class="meal-top"><span class="meal-name">Breakfast Burrito or Taco</span><div><span class="meal-badge" style="color:#E67E22">⭐ FAMILY FAV</span> <span class="meal-arrow">▼</span></div></div>
+      <div class="meal-desc">Scrambled eggs, black beans, sautéed bell pepper and onion in EVOO, avocado, fresh pico de gallo. Whole grain or spinach flour tortilla for burrito. Corn tortilla for taco — cleaner ingredients. Skip sour cream and cheese or use sparingly. No jarred sauce with added sugar.</div>
+    </div>
+
+  <div class="gold-divider"></div>
+
+  <!-- DRINKS -->
+  <div class="section-header">
+    <div class="section-icon">🍵</div>
+    <div class="section-title">Always Serve With</div>
+  </div>
+  <div class="drinks-row">
+    <div class="drink-card">
+      <div class="drink-icon">🍵</div>
+      <div class="drink-name">Green Tea</div>
+      <div class="drink-note">Morning only — antioxidants + light cognitive support. Never after noon.</div>
+    </div>
+    <div class="drink-card">
+      <div class="drink-icon">🌸</div>
+      <div class="drink-name">Herbal Tea</div>
+      <div class="drink-note">Chamomile, rooibos, or mint. Caffeine free. Any time of day safe.</div>
+    </div>
+    <div class="drink-card">
+      <div class="drink-icon">🥥</div>
+      <div class="drink-name">Coconut Water</div>
+      <div class="drink-note">Electrolytes + UTI support. Light squeeze of lime. She responds well to this.</div>
+    </div>
+    <div class="drink-card">
+      <div class="drink-icon">💧</div>
+      <div class="drink-name">Warm Water + Lemon</div>
+      <div class="drink-note">First thing on waking — digestion + UTI support + gentle gut activation.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- LUNCH TAB -->
+<div id="tab-lunch" class="tab-content">
+
+  <div class="section-header" style="margin-top:4px">
+    <div class="section-icon">☀️</div>
+    <div class="section-title">Lunch — Planned Weekly</div>
+  </div>
+  <div class="section-note">Biggest meal of the day. Caretaker A prepares in final hour of shift. Batch cook Sunday for easy weekly execution.</div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🥣</div>
+        <div>
+          <div class="card-name">Lentil Veggie Soup ⭐</div>
+          <div class="card-origin">Hero Meal • Batch Cook Sunday</div>
+          <div class="card-badges">
+            <span class="badge badge-brain">🧠 Brain</span>
+            <span class="badge badge-staple">⭐ Hero</span>
+            <span class="badge badge-prep">📦 Batch</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">The foundation meal — sneak everything into this. Lentils, sweet potato, spinach, garlic, onion, broccoli, asparagus, bone broth, turmeric + black pepper, EVOO. Lemon finish. Reheat all week in 3 minutes.</div>
+      <div class="card-how"><strong>Sunday batch:</strong> Sauté garlic + onion in EVOO → add sweet potato + broccoli → add lentils + bone broth → simmer 25 min → add spinach last 5 min → turmeric + black pepper + lemon. Makes 6–8 servings.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Iron + Vitamin C together</span>
+        <span class="nutrient">Folate from lentils</span>
+        <span class="nutrient">Curcumin from turmeric</span>
+        <span class="nutrient">Gut healing from bone broth</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🍗</div>
+        <div>
+          <div class="card-name">Baked Garlic Herb Wings ⭐</div>
+          <div class="card-origin">Her Staple — She Always Eats This</div>
+          <div class="card-badges">
+            <span class="badge badge-staple">⭐ Staple</span>
+            <span class="badge badge-quick">⚡ Easy</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Never fried. Baked always. Toss in EVOO, garlic powder, onion powder, paprika, herbs. Pair with roasted sweet potato cubes and steamed or roasted broccoli. She will always eat this.</div>
+      <div class="card-how"><strong>Caretaker tip:</strong> Start wings at beginning of shift at 400°F for 35–40 min. They're ready by lunch with zero attention needed. Roast sweet potato cubes same pan different rack.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Protein</span>
+        <span class="nutrient">Beta-carotene from sweet potato</span>
+        <span class="nutrient">Potassium</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🐟</div>
+        <div>
+          <div class="card-name">Sardine & Veggie Bowl</div>
+          <div class="card-origin">Mediterranean • Blue Zone</div>
+          <div class="card-badges">
+            <span class="badge badge-brain">🧠 Brain</span>
+            <span class="badge badge-cultural">🌍 Blue Zone</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">If she resists sardines plain, blend them directly into the lentil soup — completely undetectable but full B12 and DHA benefit. Otherwise serve over roasted sweet potato with steamed broccoli and EVOO lemon drizzle.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">B12 from food</span>
+        <span class="nutrient">DHA from food</span>
+        <span class="nutrient">Omega-3</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🍲</div>
+        <div>
+          <div class="card-name">Turkey Veggie Soup</div>
+          <div class="card-origin">Hearty • Batch Cook</div>
+          <div class="card-badges">
+            <span class="badge badge-prep">📦 Batch</span>
+            <span class="badge badge-brain">🧠 Brain</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Ground turkey browned in EVOO with garlic and onion. Add carrots, celery, kale, bone broth, turmeric. Simmer 20 min. Batch cook and reheat all week. Rotate vegetables to keep it different every time.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Lean protein</span>
+        <span class="nutrient">Collagen from bone broth</span>
+        <span class="nutrient">Fiber</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🍗</div>
+        <div>
+          <div class="card-name">Chicken & Sweet Potato Bowl</div>
+          <div class="card-origin">Easiest Lunch — 10 min</div>
+          <div class="card-badges">
+            <span class="badge badge-quick">⚡ Easiest</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Rotisserie chicken pulled apart — zero cooking. Over pre-roasted sweet potato and garlic sautéed spinach in EVOO. This is the easiest high quality lunch in the rotation.</div>
+      <div class="card-how"><strong>Tip:</strong> Buy rotisserie Sunday. Pull and refrigerate. Roast sweet potato batch Sunday too. Caretaker just reheats and plates.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Complete protein</span>
+        <span class="nutrient">Beta-carotene</span>
+        <span class="nutrient">Iron from spinach</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- DINNER TAB -->
+<div id="tab-dinner" class="tab-content">
+
+  <div class="section-header" style="margin-top:4px">
+    <div class="section-icon">🌙</div>
+    <div class="section-title">Dinner — Planned & Posted</div>
+  </div>
+  <div class="section-note">Lighter than lunch. Easier to digest. Caretaker B prepares. Posted on fridge Sunday for the week.</div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🐟</div>
+        <div>
+          <div class="card-name">Fish Soup ⭐</div>
+          <div class="card-origin">UTI + Brain + Insulin Protocol</div>
+          <div class="card-badges">
+            <span class="badge badge-brain">🧠 Brain</span>
+            <span class="badge badge-staple">⭐ 2x/Week</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Salmon or cod, asparagus, garlic, onion, bone broth, lemon, turmeric. UTI protection from asparagus. Omega-3 from fish. Anti-inflammatory from turmeric. Three problems addressed in one bowl.</div>
+      <div class="card-how"><strong>How:</strong> Sauté garlic + onion in EVOO → add bone broth → add fish chunks + asparagus → simmer 12 min → lemon + turmeric + black pepper finish. 20 min total.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">DHA from fish</span>
+        <span class="nutrient">UTI protection from asparagus</span>
+        <span class="nutrient">Curcumin from turmeric</span>
+        <span class="nutrient">Collagen from bone broth</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🍗</div>
+        <div>
+          <div class="card-name">Wings + Roasted Veg ⭐</div>
+          <div class="card-origin">Dinner Staple — Rotate the Sides</div>
+          <div class="card-badges">
+            <span class="badge badge-staple">⭐ Staple</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Same baked wings — keep consistent. Change the side vegetables every dinner so it never feels repetitive. Rotate: broccoli, beets, cauliflower, asparagus, Brussels sprouts.</div>
+      <div class="card-how"><strong>Never pair same vegetable two nights in a row.</strong> The wings are the constant. The vegetables are the variety.</div>
+    </div>
+  </div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🐟</div>
+        <div>
+          <div class="card-name">Baked Salmon + Greens</div>
+          <div class="card-origin">Omega-3 Powerhouse</div>
+          <div class="card-badges">
+            <span class="badge badge-brain">🧠 Brain</span>
+            <span class="badge badge-quick">⚡ 15 min</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Salmon fillet, lemon, garlic, EVOO, herbs. 375°F for 15 min. Serve with garlic sautéed kale and roasted asparagus. Clean, fast, no mess, high impact.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">DHA + EPA from salmon</span>
+        <span class="nutrient">Vitamin K from kale</span>
+        <span class="nutrient">UTI support from asparagus</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🍲</div>
+        <div>
+          <div class="card-name">Lentil & Beet Stew</div>
+          <div class="card-origin">Anti-Inflammatory • Batch Cook</div>
+          <div class="card-badges">
+            <span class="badge badge-brain">🧠 Brain</span>
+            <span class="badge badge-prep">📦 Batch</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Lentils, beets, carrots, garlic, onion, EVOO, bone broth. Beets boost cerebral blood flow naturally. Iron from lentils. Gut feeding prebiotics. Pair with warm whole grain bread for comfort.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Iron from lentils</span>
+        <span class="nutrient">Cerebral blood flow from beets</span>
+        <span class="nutrient">Prebiotics</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🫑</div>
+        <div>
+          <div class="card-name">Stuffed Bell Peppers</div>
+          <div class="card-origin">Complete Meal • Colorful</div>
+          <div class="card-badges">
+            <span class="badge badge-brain">🧠 Brain</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Ground turkey or lean beef, quinoa, spinach, garlic, tomato paste in halved bell peppers. Bake 25 min. Colorful and visually appealing — dementia patients respond to colorful food presentation.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Complete protein</span>
+        <span class="nutrient">Vitamin C from peppers</span>
+        <span class="nutrient">Iron + C together</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-card" onclick="toggleCard(this)">
+    <div class="card-top">
+      <div class="card-left">
+        <div class="card-emoji">🍤</div>
+        <div>
+          <div class="card-name">Shrimp & Cauliflower Rice</div>
+          <div class="card-origin">Light Evening Meal • Low Insulin</div>
+          <div class="card-badges">
+            <span class="badge badge-quick">⚡ 15 min</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-arrow">▼</div>
+    </div>
+    <div class="card-body">
+      <div class="card-desc">Shrimp sautéed in EVOO, garlic, lemon over cauliflower rice with spinach stirred in. Light enough for evening digestion. Zinc from shrimp naturally — replaces a supplement.</div>
+      <div class="card-nutrients">
+        <span class="nutrient">Zinc from shrimp</span>
+        <span class="nutrient">Low insulin spike</span>
+        <span class="nutrient">Light on digestion</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="gold-divider"></div>
+
+  <!-- NIGHTTIME -->
+  <div class="section-header">
+    <div class="section-icon">🌛</div>
+
+    <div class="meal-item" onclick="toggleMeal(this)">
+      <div class="meal-top"><span class="meal-name">365 by Whole Foods Soup</span><div><span class="meal-badge" style="color:#16A085">⚡ QUICK</span> <span class="meal-arrow">▼</span></div></div>
+      <div class="meal-desc">Approved emergency or convenience dinner. Organic, clean ingredients. Check sodium under 600mg per serving. Heat on stove 5 min, finish with EVOO drizzle and lemon. Chicken noodle or vegetable varieties best for her.</div>
+    </div>
+
+    <div class="section-title">Nighttime Wind-Down</div>
+  </div>
+  <div class="section-note">Always. Every night. Non-negotiable sleep signal.</div>
+
+  <div class="snack-row">
+    <div class="snack-item" style="border-color:rgba(201,147,58,0.4);background:rgba(201,147,58,0.06)">
+      <div class="snack-icon">🥛</div>
+      <div><div class="snack-name">Warm Goat Milk + Honey ⭐</div><div class="snack-desc">Primary wind-down drink every night. Tryptophan + comfort + consistent sleep signal. Same cup, same time.</div></div>
+    </div>
+    <div class="snack-item">
+      <div class="snack-icon">🥣</div>
+      <div><div class="snack-name">Small Oatmeal Bowl</div><div class="snack-desc">If hungry at night — prevents low blood sugar overnight. Critical given her history.</div></div>
+    </div>
+    <div class="snack-item">
+      <div class="snack-icon">🫖</div>
+      <div><div class="snack-name">Chamomile Tea (1 bag only)</div><div class="snack-desc">Alternate with goat milk. Never two bags. Never combined with other herbs.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SNACKS TAB -->
+<div id="tab-snacks" class="tab-content">
+
+  <div class="section-header" style="margin-top:4px">
+    <div class="section-icon">🍎</div>
+    <div class="section-title">Daily Snacks</div>
+  </div>
+  <div class="section-note">Two snacks daily — mid-morning and mid-afternoon. Keeps blood sugar stable and prevents hunger-driven agitation.</div>
+
+  <div class="snack-row">
+    <div class="snack-item" style="border-color:rgba(201,147,58,0.4);background:rgba(201,147,58,0.06)">
+      <div class="snack-icon">🌰</div>
+      <div><div class="snack-name">2 Brazil Nuts — Daily Non-Negotiable</div><div class="snack-desc">Full daily selenium RDA in 2 nuts. No pill needed. Place beside every breakfast plate automatically.</div></div>
+    </div>
+    <div class="snack-item">
+      <div class="snack-icon">🫙</div>
+      <div><div class="snack-name">Walnuts (small handful)</div><div class="snack-desc">Best nut for dementia specifically — omega-3, brain fats, anti-inflammatory. Pair with a date.</div></div>
+    </div>
+    <div class="snack-item">
+      <div class="snack-icon">🎃</div>
+      <div><div class="snack-name">Pumpkin Seeds</div><div class="snack-desc">Zinc from food — roasted lightly with sea salt. Sprinkle on oatmeal or eat as snack. Replaces zinc pill.</div></div>
+    </div>
+    <div class="snack-item">
+      <div class="snack-icon">🍌</div>
+      <div><div class="snack-name">Banana + Almond Butter</div><div class="snack-desc">Potassium + magnesium + tryptophan — great afternoon snack. Stabilizes blood sugar between meals.</div></div>
+    </div>
+    <div class="snack-item">
+      <div class="snack-icon">🥥</div>
+      <div><div class="snack-name">Coconut Water + Light Lime</div><div class="snack-desc">Electrolytes + UTI support. She responded well to this. Room temperature preferred.</div></div>
+    </div>
+    <div class="snack-item">
+      <div class="snack-icon">🍎</div>
+      <div><div class="snack-name">Sliced Apple + Walnuts</div><div class="snack-desc">Fiber + brain fat + polyphenols. Simple, familiar, blood sugar friendly.</div></div>
+    </div>
+    <div class="snack-item">
+      <div class="snack-icon">🫙</div>
+      <div><div class="snack-name">Cottage Cheese + Fruit</div><div class="snack-desc">Protein without cooking. Full fat, mixed berries, drizzle honey. Easy caretaker option.</div></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- RULES TAB -->
+<div id="tab-rules" class="tab-content">
+
+  <div class="section-header" style="margin-top:4px">
+    <div class="section-icon">⚠️</div>
+    <div class="section-title">Food Rules</div>
+  </div>
+  <div class="section-note">Symptoms flared when sugar, fast food, and processed items returned after the antibiotic period. The liquid diet proved her body responds to food quality. These rules protect that.</div>
+
+  <div class="avoid-banner">
+    <div class="avoid-banner-title">🚫 Never Give Her These</div>
+    <div class="avoid-grid">
+      <div class="avoid-tag"><span style="color:#c05050">×</span>Refined sugar or candy</div>
+      <div class="avoid-tag"><span style="color:#c05050">×</span>Fast food of any kind</div>
+      <div class="avoid-tag"><span style="color:#c05050">×</span>Fried food</div>
+      <div class="avoid-tag"><span style="color:#c05050">×</span>Seed oils (canola, vegetable)</div>
+      <div class="avoid-tag"><span style="color:#c05050">×</span>Processed snacks / chips</div>
+      <div class="avoid-tag"><span style="color:#c05050">×</span>Sugary drinks or juice</div>
+      <div class="avoid-tag"><span style="color:#c05050">×</span>Caffeine after 2pm</div>
+      <div class="avoid-tag"><span style="color:#c05050">×</span>Heavy meals close to bed</div>
+      <div class="avoid-tag"><span style="color:#c05050">×</span>Artificial additives</div>
+      <div class="avoid-tag"><span style="color:#c05050">×</span>White bread or pastries</div>
+    </div>
+  </div>
+
+  <div class="rules-box">
+    <div class="rules-title">✅ Always Cook With</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span>EVOO — never vegetable or canola oil</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span>Bone broth as soup base always</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span>Garlic and onion as base of every savory dish</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span>Turmeric + black pepper in every soup</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span>Lemon finish on soups and greens</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span>Goat milk instead of cow milk where possible</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span>2 brazil nuts beside every breakfast plate</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span>Pumpkin seeds on oatmeal every time</div>
+  </div>
+
+  <div class="rules-box">
+    <div class="rules-title">📦 Sunday Batch Cook Checklist</div>
+    <div class="rule-row"><span style="color:var(--gold)">□</span>Large pot lentil veggie soup — covers Mon–Wed lunch</div>
+    <div class="rule-row"><span style="color:var(--gold)">□</span>Black beans + brown rice — covers 2 breakfasts</div>
+    <div class="rule-row"><span style="color:var(--gold)">□</span>Saltfish sautéed — covers 1–2 breakfasts</div>
+    <div class="rule-row"><span style="color:var(--gold)">□</span>Roasted sweet potato cubes — covers all week</div>
+    <div class="rule-row"><span style="color:var(--gold)">□</span>Rotisserie chicken pulled — covers 1–2 lunches</div>
+    <div class="rule-row"><span style="color:var(--gold)">□</span>Turkey veggie soup — covers Thu–Fri lunch</div>
+    <div class="rule-row"><span style="color:var(--gold)">□</span>Hard boil 6 eggs — quick add-on all week</div>
+  </div>
+
+  <div class="rules-box">
+    <div class="rules-title">🩺 Clinical Food Notes</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span><strong style="color:var(--warm)">UTI history:</strong> Asparagus, coconut water, D-Mannose in water daily</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span><strong style="color:var(--warm)">Insulin resistance:</strong> No refined carbs, no sugar, no white rice alone</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span><strong style="color:var(--warm)">Low blood sugar:</strong> Never skip meals, always nighttime snack</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span><strong style="color:var(--warm)">Constipation risk:</strong> EVOO daily, hydration constant, fiber in every meal</div>
+    <div class="rule-row"><span style="color:var(--gold)">→</span><strong style="color:var(--warm)">Post-meal:</strong> Short walk after every meal — insulin management</div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p>"Whole food first. Supplements fill the gaps.<br>What she eats is medicine."<br>
+  <span style="font-size:9px">Update this menu as new foods are introduced or removed.</span></p>
+</div>
+
+<script>
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleCard(el) {
+  var body = el.querySelector('.card-body');
+  var arrow = el.querySelector('.card-arrow');
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    el.classList.remove('open');
+    arrow.textContent = '▼';
+  } else {
+    body.classList.add('open');
+    el.classList.add('open');
+    arrow.textContent = '▲';
+  }
+}
+</script>
+</body>
+</html>

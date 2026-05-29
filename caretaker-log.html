@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Caretaker Daily Log</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Crimson+Pro:wght@300;400;600&display=swap');
+
+:root {
+  --bg: #0b0c0e;
+  --surface: rgba(255,255,255,0.04);
+  --border: rgba(255,255,255,0.08);
+  --text: #e4dcd0;
+  --muted: #4a4a6a;
+  --gold: #c9933a;
+  --green: #27AE60;
+  --red: #E74C3C;
+  --blue: #2980B9;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Crimson Pro', Georgia, serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 600px; margin: 0 auto; }
+
+/* HEADER */
+.header { background: linear-gradient(160deg,#14141e,#0b0c0e); border-bottom: 1px solid var(--border); padding: 20px 18px 14px; }
+.header-eye { font-size: 9px; letter-spacing: 4px; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.header h1 { font-family: 'Playfair Display', serif; font-size: 22px; color: #f0e8d8; margin-bottom: 3px; }
+.header-sub { font-size: 11px; color: var(--muted); }
+
+/* DATE BAR */
+.date-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border); gap: 8px; }
+.date-display { font-family: 'Playfair Display', serif; font-size: 16px; color: var(--gold); }
+.date-nav { display: flex; gap: 6px; }
+.date-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; color: var(--text); font-size: 11px; cursor: pointer; font-family: inherit; }
+.date-btn:active { background: rgba(255,255,255,0.1); }
+.shift-select { background: var(--surface); border: 1px solid var(--border); border-radius: 7px; padding: 5px 10px; color: var(--text); font-size: 11px; cursor: pointer; font-family: inherit; }
+.shift-select.cga { border-color: rgba(39,174,96,0.4); color: #5dc48a; background: rgba(39,174,96,0.08); }
+.shift-select.cgb { border-color: rgba(41,128,185,0.4); color: #5aa8e0; background: rgba(41,128,185,0.08); }
+
+/* TAB NAV */
+.tab-nav { display: flex; overflow-x: auto; border-bottom: 1px solid var(--border); }
+.tab-nav::-webkit-scrollbar { display: none; }
+.tab-btn { flex-shrink: 0; padding: 10px 12px; font-family: 'Crimson Pro', serif; font-size: 11px; cursor: pointer; background: transparent; border: none; color: var(--muted); border-bottom: 2px solid transparent; transition: all 0.2s; white-space: nowrap; }
+.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+/* SECTIONS */
+.section { display: none; padding: 14px; }
+.section.active { display: block; }
+.sec-label { font-size: 9px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; }
+
+/* FORM ELEMENTS */
+.field-group { margin-bottom: 14px; }
+.field-label { font-size: 10px; font-weight: 700; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; display: block; }
+.field-note { font-size: 10px; color: var(--muted); margin-bottom: 6px; font-style: italic; }
+
+/* RATING BUTTONS */
+.rating-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.rating-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 12px; cursor: pointer; font-family: inherit; color: var(--text); transition: all 0.2s; }
+.rating-btn.selected { border-color: var(--gold); background: rgba(201,147,58,0.15); color: var(--gold); }
+
+/* CHECKLIST */
+.checklist { display: flex; flex-direction: column; gap: 6px; }
+.check-item { background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; cursor: pointer; transition: all 0.2s; }
+.check-item.checked { background: rgba(39,174,96,0.08); border-color: rgba(39,174,96,0.3); }
+.check-box { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 11px; transition: all 0.2s; }
+.check-item.checked .check-box { background: var(--green); border-color: var(--green); }
+.check-text { font-size: 12px; color: var(--text); line-height: 1.3; flex: 1; }
+.check-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* TEXT AREAS */
+.log-textarea { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 9px; padding: 10px 12px; color: var(--text); font-family: 'Crimson Pro', serif; font-size: 13px; line-height: 1.6; resize: vertical; min-height: 80px; }
+.log-textarea:focus { outline: none; border-color: rgba(201,147,58,0.4); }
+.log-textarea::placeholder { color: var(--muted); }
+
+/* SYMPTOM GRID */
+.symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.symptom-btn { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 11px; cursor: pointer; font-family: inherit; color: var(--text); text-align: left; display: flex; gap: 6px; align-items: center; transition: all 0.2s; }
+.symptom-btn.flagged { background: rgba(231,76,60,0.12); border-color: rgba(231,76,60,0.4); color: #e87070; }
+.symptom-btn.ok { background: rgba(39,174,96,0.08); border-color: rgba(39,174,96,0.3); color: #5dc48a; }
+
+/* WATER TRACKER */
+.water-tracker { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.water-cup { font-size: 22px; cursor: pointer; opacity: 0.3; transition: all 0.2s; }
+.water-cup.filled { opacity: 1; }
+.water-count { font-size: 12px; color: var(--blue); margin-top: 6px; }
+
+/* SAVE BUTTON */
+.save-btn { width: 100%; background: linear-gradient(135deg,#1a4a1a,#27AE60); border: none; border-radius: 10px; padding: 14px; color: #fff; font-family: 'Playfair Display', serif; font-size: 15px; cursor: pointer; margin-top: 16px; letter-spacing: 0.5px; }
+.save-btn:active { opacity: 0.9; }
+
+/* LOG HISTORY */
+.log-entry { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; }
+.log-entry-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+.log-entry-date { font-family: 'Playfair Display', serif; font-size: 13px; color: var(--gold); }
+.log-entry-shift { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+.log-entry-body { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.log-entry-flags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.flag-tag { font-size: 9px; border-radius: 4px; padding: 2px 7px; font-weight: 700; }
+.flag-red { background: rgba(231,76,60,0.15); color: #e87070; border: 1px solid rgba(231,76,60,0.3); }
+.flag-green { background: rgba(39,174,96,0.12); color: #5dc48a; border: 1px solid rgba(39,174,96,0.3); }
+.flag-gold { background: rgba(201,147,58,0.12); color: var(--gold); border: 1px solid rgba(201,147,58,0.3); }
+.empty-state { text-align: center; padding: 30px; color: var(--muted); font-size: 13px; font-style: italic; }
+
+/* WEEKLY SUMMARY */
+.summary-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+.summary-title { font-size: 11px; font-weight: 700; color: var(--gold); margin-bottom: 8px; letter-spacing: 1px; }
+.summary-row { font-size: 11px; color: #9080a0; margin-bottom: 4px; display: flex; justify-content: space-between; }
+.summary-val { color: var(--text); font-weight: 600; }
+
+.divider { height: 1px; background: linear-gradient(90deg,transparent,var(--border),transparent); margin: 12px 0; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-eye">Daily Care Documentation</div>
+  <h1>Caretaker Log</h1>
+  <div class="header-sub">Track • Document • Report • Protect</div>
+</div>
+
+<!-- DATE + SHIFT BAR -->
+<div class="date-bar">
+  <div>
+    <div class="date-display" id="dateDisplay"></div>
+  </div>
+  <div class="date-nav">
+    <button class="date-btn" onclick="changeDate(-1)">← Prev</button>
+    <button class="date-btn" onclick="changeDate(1)">Next →</button>
+  </div>
+  <select class="shift-select cga" id="shiftSelect" onchange="updateShiftStyle()">
+    <option value="a">CG-A 8AM–3PM</option>
+    <option value="b">CG-B 3PM–8PM</option>
+    <option value="family">Family / Other</option>
+  </select>
+</div>
+
+<!-- TAB NAV -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('checklist',this)">✅ Checklist</button>
+  <button class="tab-btn" onclick="showTab('health',this)">🩺 Health</button>
+  <button class="tab-btn" onclick="showTab('nutrition',this)">🥗 Nutrition</button>
+  <button class="tab-btn" onclick="showTab('behavior',this)">🧠 Behavior</button>
+  <button class="tab-btn" onclick="showTab('notes',this)">📝 Notes</button>
+  <button class="tab-btn" onclick="showTab('history',this)">📋 History</button>
+  <button class="tab-btn" onclick="showTab('weekly',this)">📊 Weekly</button>
+</div>
+
+<!-- ===== CHECKLIST ===== -->
+<div id="tab-checklist" class="section active">
+  <div class="sec-label">Shift Completion Checklist</div>
+
+  <div class="field-group">
+    <div class="field-label">🌅 Morning / Activation</div>
+    <div class="checklist" id="checklistMorning">
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Breakfast served within 30 min of waking</div><div class="check-sub">With morning supplements + 2 brazil nuts</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Warm water + lemon offered on waking</div><div class="check-sub">First thing before breakfast — UTI flush</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Shower or full wash completed</div><div class="check-sub">Caretaker assisted — warm water, gentle soap</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Post-shower lotion applied</div><div class="check-sub">Full body — left buttock rash area specifically checked</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Wiping assist confirmed after bathroom</div><div class="check-sub">Handled with dignity — directly linked to UTI prevention</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Morning supplements given with food</div><div class="check-sub">D3/K2 • Omega-3 • Curcumin Elite</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Outdoor outing completed</div><div class="check-sub">At minimum neighborhood park walk — 15 min</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Mid-morning snack + water offered</div><div class="check-sub">2 brazil nuts, walnuts, or fruit with 8oz water</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Lunch served by 12:30pm</div><div class="check-sub">No sugar, no fried food, no fast food</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Post-meal walk — 10 min minimum</div><div class="check-sub">After every meal — insulin management</div></div></div>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">🌙 Evening / Wind-Down (CG-B)</div>
+    <div class="checklist" id="checklistEvening">
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Afternoon snack + water offered at 3:30pm</div><div class="check-sub">Coconut water or banana + almond butter</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Active engagement — NOT passive supervision</div><div class="check-sub">Walked with her, participated in activity, not on phone</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Dinner served by 5:30pm</div><div class="check-sub">Whole food — check approved list. No fast food.</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Wiping assist confirmed after evening bathroom</div><div class="check-sub">Non-negotiable — UTI prevention</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Evening supplements given with snack</div><div class="check-sub">Magnesium Glycinate • Women's Probiotic</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Warm goat milk + honey given at 7:45pm</div><div class="check-sub">Non-negotiable every single night — sleep signal</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Bedtime routine completed by 8:00pm</div><div class="check-sub">Same order every night</div></div></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><div><div class="check-text">Log entry completed before leaving</div><div class="check-sub">Notes, mood, any concerns documented</div></div></div>
+    </div>
+  </div>
+
+  <button class="save-btn" onclick="saveEntry()">Save Checklist for This Shift</button>
+</div>
+
+<!-- ===== HEALTH ===== -->
+<div id="tab-health" class="section">
+  <div class="sec-label">Health Observations</div>
+
+  <div class="field-group">
+    <div class="field-label">💧 UTI Watch — Urine Observations</div>
+    <div class="field-note">Check at every bathroom assist. Changes here are clinical early warning signs.</div>
+    <div class="symptom-grid">
+      <div class="symptom-btn" onclick="toggleSymptom(this,'uti')" data-key="urine_clear"><span>💧</span>Clear / normal</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'uti')" data-key="urine_cloudy"><span>🌫️</span>Cloudy</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'uti')" data-key="urine_dark"><span>🟤</span>Dark colored</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'uti')" data-key="urine_odor"><span>⚠️</span>Strong odor</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'uti')" data-key="urine_freq"><span>🔄</span>Frequent urge</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'uti')" data-key="urine_pain"><span>😣</span>Signs of pain/burn</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field-group">
+    <div class="field-label">🌡️ Temperature</div>
+    <div class="rating-row">
+      <div class="rating-btn" onclick="selectRating(this,'temp','normal')">✅ Normal</div>
+      <div class="rating-btn" onclick="selectRating(this,'temp','low_grade')">⚠️ Low grade 99–100°F</div>
+      <div class="rating-btn" onclick="selectRating(this,'temp','fever')">🚨 Fever 100°F+</div>
+      <div class="rating-btn" onclick="selectRating(this,'temp','not_checked')">— Not checked</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field-group">
+    <div class="field-label">🚽 Bowel Movement</div>
+    <div class="rating-row">
+      <div class="rating-btn" onclick="selectRating(this,'bowel','yes_normal')">✅ Yes — normal</div>
+      <div class="rating-btn" onclick="selectRating(this,'bowel','yes_loose')">⚠️ Yes — loose</div>
+      <div class="rating-btn" onclick="selectRating(this,'bowel','no')">❌ No — none today</div>
+      <div class="rating-btn" onclick="selectRating(this,'bowel','constipation')">🚨 Signs of constipation</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field-group">
+    <div class="field-label">🩹 Rash — Left Buttock Check</div>
+    <div class="field-note">Check at every shower assist. Document any change immediately.</div>
+    <div class="rating-row">
+      <div class="rating-btn" onclick="selectRating(this,'rash','same')">✅ Same — no change</div>
+      <div class="rating-btn" onclick="selectRating(this,'rash','better')">📈 Looks better</div>
+      <div class="rating-btn" onclick="selectRating(this,'rash','worse')">⚠️ Looks worse / spreading</div>
+      <div class="rating-btn" onclick="selectRating(this,'rash','broken')">🚨 Skin broken — call physician</div>
+      <div class="rating-btn" onclick="selectRating(this,'rash','not_checked')">— Not checked today</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field-group">
+    <div class="field-label">💊 Medications / Supplements</div>
+    <div class="symptom-grid">
+      <div class="symptom-btn" onclick="toggleSymptom(this,'meds')" data-key="am_supp"><span>🌅</span>AM supplements taken</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'meds')" data-key="pm_supp"><span>🌙</span>PM supplements taken</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'meds')" data-key="meds_taken"><span>💊</span>Medications taken</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'meds')" data-key="refused"><span>❌</span>Refused any medication</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field-group">
+    <div class="field-label">📝 Health Notes</div>
+    <textarea class="log-textarea" id="healthNotes" placeholder="Any health concerns, changes, or observations not captured above..."></textarea>
+  </div>
+
+  <button class="save-btn" onclick="saveEntry()">Save Health Log</button>
+</div>
+
+<!-- ===== NUTRITION ===== -->
+<div id="tab-nutrition" class="section">
+  <div class="sec-label">Food & Hydration Log</div>
+
+  <div class="field-group">
+    <div class="field-label">🌅 Breakfast</div>
+    <div class="rating-row" style="margin-bottom:8px;">
+      <div class="rating-btn" onclick="selectRating(this,'breakfast_eaten','all')">✅ Ate all</div>
+      <div class="rating-btn" onclick="selectRating(this,'breakfast_eaten','most')">🟡 Ate most</div>
+      <div class="rating-btn" onclick="selectRating(this,'breakfast_eaten','little')">⚠️ Ate little</div>
+      <div class="rating-btn" onclick="selectRating(this,'breakfast_eaten','refused')">❌ Refused</div>
+    </div>
+    <textarea class="log-textarea" id="breakfastLog" style="min-height:50px;" placeholder="What was served..."></textarea>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">☀️ Lunch</div>
+    <div class="rating-row" style="margin-bottom:8px;">
+      <div class="rating-btn" onclick="selectRating(this,'lunch_eaten','all')">✅ Ate all</div>
+      <div class="rating-btn" onclick="selectRating(this,'lunch_eaten','most')">🟡 Ate most</div>
+      <div class="rating-btn" onclick="selectRating(this,'lunch_eaten','little')">⚠️ Ate little</div>
+      <div class="rating-btn" onclick="selectRating(this,'lunch_eaten','refused')">❌ Refused</div>
+    </div>
+    <textarea class="log-textarea" id="lunchLog" style="min-height:50px;" placeholder="What was served..."></textarea>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">🌙 Dinner</div>
+    <div class="rating-row" style="margin-bottom:8px;">
+      <div class="rating-btn" onclick="selectRating(this,'dinner_eaten','all')">✅ Ate all</div>
+      <div class="rating-btn" onclick="selectRating(this,'dinner_eaten','most')">🟡 Ate most</div>
+      <div class="rating-btn" onclick="selectRating(this,'dinner_eaten','little')">⚠️ Ate little</div>
+      <div class="rating-btn" onclick="selectRating(this,'dinner_eaten','refused')">❌ Refused</div>
+    </div>
+    <textarea class="log-textarea" id="dinnerLog" style="min-height:50px;" placeholder="What was served..."></textarea>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">💧 Water Intake — Tap to track glasses</div>
+    <div class="water-tracker" id="waterTracker">
+      <span class="water-cup" onclick="fillCup(0)">💧</span>
+      <span class="water-cup" onclick="fillCup(1)">💧</span>
+      <span class="water-cup" onclick="fillCup(2)">💧</span>
+      <span class="water-cup" onclick="fillCup(3)">💧</span>
+      <span class="water-cup" onclick="fillCup(4)">💧</span>
+      <span class="water-cup" onclick="fillCup(5)">💧</span>
+      <span class="water-cup" onclick="fillCup(6)">💧</span>
+      <span class="water-cup" onclick="fillCup(7)">💧</span>
+    </div>
+    <div class="water-count" id="waterCount">0 of 8 glasses today</div>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">⚠️ Any Prohibited Foods Given?</div>
+    <div class="rating-row">
+      <div class="rating-btn" onclick="selectRating(this,'bad_food','none')">✅ No — protocol followed</div>
+      <div class="rating-btn" onclick="selectRating(this,'bad_food','yes')">🚨 Yes — document below</div>
+    </div>
+    <textarea class="log-textarea" id="badFoodLog" style="min-height:40px;margin-top:8px;" placeholder="If yes — what was given and why..."></textarea>
+  </div>
+
+  <button class="save-btn" onclick="saveEntry()">Save Nutrition Log</button>
+</div>
+
+<!-- ===== BEHAVIOR ===== -->
+<div id="tab-behavior" class="section">
+  <div class="sec-label">Behavioral & Mood Observations</div>
+
+  <div class="field-group">
+    <div class="field-label">😊 Overall Mood Today</div>
+    <div class="rating-row">
+      <div class="rating-btn" onclick="selectRating(this,'mood','great')">😊 Great — calm, engaged</div>
+      <div class="rating-btn" onclick="selectRating(this,'mood','good')">🙂 Good — mostly settled</div>
+      <div class="rating-btn" onclick="selectRating(this,'mood','mixed')">😐 Mixed — had good and hard moments</div>
+      <div class="rating-btn" onclick="selectRating(this,'mood','difficult')">😟 Difficult — agitated or withdrawn</div>
+      <div class="rating-btn" onclick="selectRating(this,'mood','crisis')">🚨 Crisis — required intervention</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field-group">
+    <div class="field-label">🧠 Behavioral Flags — Check all that occurred</div>
+    <div class="symptom-grid">
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="husband_asking"><span>💙</span>Asking for husband</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="agitation"><span>😤</span>Agitation episode</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="confusion"><span>🌀</span>Increased confusion</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="wandering"><span>🚶</span>Wandering / restless</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="refused_care"><span>🙅</span>Refused care</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="refused_food"><span>🍽️</span>Refused food</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="good_engagement"><span>✨</span>Great engagement</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="enjoyed_activity"><span>🎨</span>Enjoyed activity</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="social_positive"><span>👥</span>Positive social interaction</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="slept_well"><span>😴</span>Slept well</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="poor_sleep"><span>🌙</span>Poor / disrupted sleep</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'behavior')" data-key="fall_risk"><span>⚠️</span>Fall or near-fall</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field-group">
+    <div class="field-label">🏋️ Physical Activity Today</div>
+    <div class="symptom-grid">
+      <div class="symptom-btn" onclick="toggleSymptom(this,'activity')" data-key="kinetic"><span>🏋️</span>Kinetic Fitness session</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'activity')" data-key="park_walk"><span>🌳</span>Park walk</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'activity')" data-key="home_walk"><span>🚶</span>Home / neighborhood walk</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'activity')" data-key="dancing"><span>💃</span>Dancing / movement</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'activity')" data-key="agape"><span>👥</span>Agape Day Center</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'activity')" data-key="caretaker_home"><span>🐕</span>Caretaker home visit</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'activity')" data-key="knitting"><span>🧶</span>Knitting</div>
+      <div class="symptom-btn" onclick="toggleSymptom(this,'activity')" data-key="cleaning"><span>🧹</span>Light cleaning task</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="field-group">
+    <div class="field-label">📝 Behavior Notes</div>
+    <textarea class="log-textarea" id="behaviorNotes" placeholder="What triggered good or difficult moments? What helped? What didn't work? Be specific."></textarea>
+  </div>
+
+  <button class="save-btn" onclick="saveEntry()">Save Behavior Log</button>
+</div>
+
+<!-- ===== NOTES ===== -->
+<div id="tab-notes" class="section">
+  <div class="sec-label">Shift Notes & Handoff</div>
+
+  <div class="field-group">
+    <div class="field-label">📋 General Shift Notes</div>
+    <div class="field-note">What happened today. What worked. What didn't. Be specific — this becomes her medical history.</div>
+    <textarea class="log-textarea" id="generalNotes" style="min-height:120px;" placeholder="Write a brief summary of the shift — key events, her mood, what she ate, how she slept, any concerns..."></textarea>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">🔄 Handoff Notes for Next Caretaker</div>
+    <div class="field-note">What does the next shift need to know right now?</div>
+    <textarea class="log-textarea" id="handoffNotes" style="min-height:80px;" placeholder="Key things to watch for, what she needs, any pending items..."></textarea>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">🚨 Urgent Items for Family</div>
+    <div class="field-note">Anything the family needs to know — health changes, supply needs, concerns.</div>
+    <textarea class="log-textarea" id="urgentNotes" style="min-height:60px;" placeholder="Flag anything urgent here — family reviews this section first..."></textarea>
+  </div>
+
+  <div class="field-group">
+    <div class="field-label">✍️ Caretaker Name</div>
+    <textarea class="log-textarea" id="caretakerName" style="min-height:40px;" placeholder="Your name and shift time..."></textarea>
+  </div>
+
+  <button class="save-btn" onclick="saveEntry()">Save & Submit Log Entry</button>
+</div>
+
+<!-- ===== HISTORY ===== -->
+<div id="tab-history" class="section">
+  <div class="sec-label">Log History</div>
+  <div id="historyList"></div>
+</div>
+
+<!-- ===== WEEKLY SUMMARY ===== -->
+<div id="tab-weekly" class="section">
+  <div class="sec-label">Weekly Summary — For Physician Visits</div>
+  <div id="weeklySummary"></div>
+</div>
+
+<script>
+// ===== STATE =====
+var currentDate = new Date();
+var entries = JSON.parse(localStorage.getItem('careLog') || '[]');
+var currentEntry = {};
+var waterFilled = 0;
+var ratings = {};
+var symptoms = {};
+
+function getDateKey() {
+  return currentDate.toISOString().split('T')[0] + '-' + document.getElementById('shiftSelect').value;
+}
+
+function formatDate(d) {
+  var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return days[d.getDay()] + ', ' + months[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+}
+
+function updateDisplay() {
+  document.getElementById('dateDisplay').textContent = formatDate(currentDate);
+  loadEntryForDate();
+}
+
+function changeDate(dir) {
+  currentDate.setDate(currentDate.getDate() + dir);
+  updateDisplay();
+}
+
+function updateShiftStyle() {
+  var sel = document.getElementById('shiftSelect');
+  sel.className = 'shift-select ' + (sel.value === 'a' ? 'cga' : sel.value === 'b' ? 'cgb' : '');
+  loadEntryForDate();
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (id === 'history') renderHistory();
+  if (id === 'weekly') renderWeekly();
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  var box = el.querySelector('.check-box');
+  box.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+function selectRating(btn, group, value) {
+  var parent = btn.parentElement;
+  parent.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  ratings[group] = value;
+}
+
+function toggleSymptom(btn, group) {
+  var key = btn.dataset.key;
+  if (!symptoms[group]) symptoms[group] = {};
+  if (btn.classList.contains('flagged') || btn.classList.contains('ok')) {
+    btn.classList.remove('flagged', 'ok');
+    delete symptoms[group][key];
+  } else {
+    var isPositive = ['urine_clear','am_supp','pm_supp','meds_taken','good_engagement','enjoyed_activity','social_positive','slept_well'].includes(key);
+    btn.classList.add(isPositive ? 'ok' : 'flagged');
+    symptoms[group][key] = true;
+  }
+}
+
+function fillCup(index) {
+  var cups = document.querySelectorAll('.water-cup');
+  waterFilled = index + 1;
+  cups.forEach((cup, i) => cup.classList.toggle('filled', i < waterFilled));
+  document.getElementById('waterCount').textContent = waterFilled + ' of 8 glasses today';
+}
+
+function saveEntry() {
+  var key = getDateKey();
+  var entry = {
+    key: key,
+    date: formatDate(currentDate),
+    dateRaw: currentDate.toISOString().split('T')[0],
+    shift: document.getElementById('shiftSelect').value,
+    timestamp: new Date().toISOString(),
+    checklist: [],
+    ratings: Object.assign({}, ratings),
+    symptoms: JSON.parse(JSON.stringify(symptoms)),
+    water: waterFilled,
+    notes: {
+      health: document.getElementById('healthNotes').value,
+      breakfast: document.getElementById('breakfastLog').value,
+      lunch: document.getElementById('lunchLog').value,
+      dinner: document.getElementById('dinnerLog').value,
+      badFood: document.getElementById('badFoodLog').value,
+      behavior: document.getElementById('behaviorNotes').value,
+      general: document.getElementById('generalNotes').value,
+      handoff: document.getElementById('handoffNotes').value,
+      urgent: document.getElementById('urgentNotes').value,
+      caretaker: document.getElementById('caretakerName').value,
+    }
+  };
+
+  document.querySelectorAll('.check-item.checked .check-text').forEach(el => {
+    entry.checklist.push(el.textContent);
+  });
+
+  var idx = entries.findIndex(e => e.key === key);
+  if (idx >= 0) entries[idx] = entry;
+  else entries.push(entry);
+
+  localStorage.setItem('careLog', JSON.stringify(entries));
+
+  var btn = event.target;
+  var orig = btn.textContent;
+  btn.textContent = '✅ Saved!';
+  btn.style.background = 'linear-gradient(135deg,#1a4a1a,#27AE60)';
+  setTimeout(function() { btn.textContent = orig; }, 2000);
+}
+
+function loadEntryForDate() {
+  var key = getDateKey();
+  var entry = entries.find(e => e.key === key);
+  ratings = {};
+  symptoms = {};
+  waterFilled = 0;
+
+  document.querySelectorAll('.check-item').forEach(el => { el.classList.remove('checked'); el.querySelector('.check-box').textContent = ''; });
+  document.querySelectorAll('.rating-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.symptom-btn').forEach(b => b.classList.remove('flagged','ok'));
+  document.querySelectorAll('.water-cup').forEach(c => c.classList.remove('filled'));
+  document.getElementById('waterCount').textContent = '0 of 8 glasses today';
+  ['healthNotes','breakfastLog','lunchLog','dinnerLog','badFoodLog','behaviorNotes','generalNotes','handoffNotes','urgentNotes','caretakerName'].forEach(id => { document.getElementById(id).value = ''; });
+
+  if (!entry) return;
+
+  ratings = entry.ratings || {};
+  symptoms = entry.symptoms || {};
+  waterFilled = entry.water || 0;
+
+  if (waterFilled > 0) {
+    document.querySelectorAll('.water-cup').forEach((c,i) => c.classList.toggle('filled', i < waterFilled));
+    document.getElementById('waterCount').textContent = waterFilled + ' of 8 glasses today';
+  }
+
+  Object.entries(ratings).forEach(([group, val]) => {
+    document.querySelectorAll('.rating-btn').forEach(btn => {
+      if (btn.onclick && btn.onclick.toString().includes("'" + group + "'") && btn.onclick.toString().includes("'" + val + "'")) {
+        btn.classList.add('selected');
+      }
+    });
+  });
+
+  if (entry.notes) {
+    Object.entries(entry.notes).forEach(([k, v]) => {
+      var map = { health:'healthNotes', breakfast:'breakfastLog', lunch:'lunchLog', dinner:'dinnerLog', badFood:'badFoodLog', behavior:'behaviorNotes', general:'generalNotes', handoff:'handoffNotes', urgent:'urgentNotes', caretaker:'caretakerName' };
+      if (map[k] && document.getElementById(map[k])) document.getElementById(map[k]).value = v || '';
+    });
+  }
+}
+
+function renderHistory() {
+  var list = document.getElementById('historyList');
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty-state">No log entries yet.<br>Complete your first shift log to see history here.</div>';
+    return;
+  }
+  var sorted = [...entries].sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  list.innerHTML = sorted.slice(0, 30).map(function(e) {
+    var flags = [];
+    var shiftLabel = e.shift === 'a' ? 'CG-A' : e.shift === 'b' ? 'CG-B' : 'Family';
+    var shiftColor = e.shift === 'a' ? '#5dc48a' : e.shift === 'b' ? '#5aa8e0' : '#c9933a';
+
+    if (e.ratings.mood === 'crisis' || e.ratings.mood === 'difficult') flags.push({label:'⚠️ Difficult day', cls:'flag-red'});
+    if (e.ratings.rash === 'worse' || e.ratings.rash === 'broken') flags.push({label:'🩹 Rash change', cls:'flag-red'});
+    if (e.ratings.temp === 'fever') flags.push({label:'🌡️ Fever', cls:'flag-red'});
+    if (e.notes && e.notes.urgent) flags.push({label:'🚨 Urgent note', cls:'flag-red'});
+    if (e.ratings.mood === 'great' || e.ratings.mood === 'good') flags.push({label:'😊 Good day', cls:'flag-green'});
+    if (e.water >= 6) flags.push({label:'💧 Well hydrated', cls:'flag-green'});
+
+    return '<div class="log-entry" onclick="jumpToDate(\'' + e.dateRaw + '\',\'' + e.shift + '\')">' +
+      '<div class="log-entry-header">' +
+        '<div class="log-entry-date">' + e.date + '</div>' +
+        '<div class="log-entry-shift" style="background:' + shiftColor + '22;color:' + shiftColor + ';border:1px solid ' + shiftColor + '44">' + shiftLabel + '</div>' +
+      '</div>' +
+      (e.notes && e.notes.general ? '<div class="log-entry-body">' + e.notes.general.substring(0,120) + (e.notes.general.length > 120 ? '...' : '') + '</div>' : '') +
+      '<div class="log-entry-flags">' + flags.map(f => '<span class="flag-tag ' + f.cls + '">' + f.label + '</span>').join('') + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+function jumpToDate(dateStr, shift) {
+  currentDate = new Date(dateStr + 'T12:00:00');
+  document.getElementById('shiftSelect').value = shift;
+  updateShiftStyle();
+  updateDisplay();
+  showTab('notes', document.querySelector('.tab-btn'));
+  document.querySelectorAll('.tab-btn').forEach(b => { if(b.textContent.includes('Notes')) { showTab('notes', b); } });
+}
+
+function renderWeekly() {
+  var summary = document.getElementById('weeklySummary');
+  var weekEntries = entries.filter(function(e) {
+    var d = new Date(e.dateRaw);
+    var now = new Date();
+    var diff = (now - d) / (1000 * 60 * 60 * 24);
+    return diff <= 7;
+  });
+
+  if (weekEntries.length === 0) {
+    summary.innerHTML = '<div class="empty-state">No entries from the past 7 days yet.</div>';
+    return;
+  }
+
+  var goodDays = weekEntries.filter(e => e.ratings.mood === 'great' || e.ratings.mood === 'good').length;
+  var difficultDays = weekEntries.filter(e => e.ratings.mood === 'difficult' || e.ratings.mood === 'crisis').length;
+  var utiFlags = weekEntries.filter(e => e.symptoms && e.symptoms.uti && (e.symptoms.uti.urine_cloudy || e.symptoms.uti.urine_odor || e.symptoms.uti.urine_dark)).length;
+  var avgWater = weekEntries.length > 0 ? (weekEntries.reduce((a,e) => a + (e.water||0), 0) / weekEntries.length).toFixed(1) : 0;
+  var activeDays = weekEntries.filter(e => e.symptoms && e.symptoms.activity && Object.keys(e.symptoms.activity).length > 0).length;
+  var urgentNotes = weekEntries.filter(e => e.notes && e.notes.urgent && e.notes.urgent.trim().length > 0);
+
+  summary.innerHTML =
+    '<div class="summary-card">' +
+      '<div class="summary-title">📊 WEEK AT A GLANCE — Print for Physician</div>' +
+      '<div class="summary-row"><span>Entries this week</span><span class="summary-val">' + weekEntries.length + '</span></div>' +
+      '<div class="summary-row"><span>Good mood days</span><span class="summary-val" style="color:#5dc48a">' + goodDays + '</span></div>' +
+      '<div class="summary-row"><span>Difficult days</span><span class="summary-val" style="color:#e87070">' + difficultDays + '</span></div>' +
+      '<div class="summary-row"><span>UTI symptom flags</span><span class="summary-val" style="color:' + (utiFlags > 0 ? '#e87070' : '#5dc48a') + '">' + utiFlags + (utiFlags > 0 ? ' ⚠️' : ' ✅') + '</span></div>' +
+      '<div class="summary-row"><span>Avg water glasses/day</span><span class="summary-val">' + avgWater + '/8</span></div>' +
+      '<div class="summary-row"><span>Active days</span><span class="summary-val">' + activeDays + '</span></div>' +
+    '</div>' +
+    (urgentNotes.length > 0 ?
+      '<div class="summary-card" style="border-color:rgba(231,76,60,0.3);background:rgba(231,76,60,0.06);">' +
+        '<div class="summary-title" style="color:#E74C3C;">🚨 URGENT NOTES FOR FAMILY / PHYSICIAN</div>' +
+        urgentNotes.map(e => '<div style="font-size:11px;color:#c08080;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(231,76,60,0.15);"><strong style="color:#d0c8b8;">' + e.date + ' (' + (e.shift === 'a' ? 'CG-A' : e.shift === 'b' ? 'CG-B' : 'Family') + '):</strong> ' + e.notes.urgent + '</div>').join('') +
+      '</div>' : '') +
+    '<div class="summary-card">' +
+      '<div class="summary-title">📝 HANDOFF NOTES — Last 7 Days</div>' +
+      weekEntries.filter(e => e.notes && e.notes.handoff && e.notes.handoff.trim()).map(e =>
+        '<div style="font-size:11px;color:#9080a0;margin-bottom:6px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,0.06);"><strong style="color:#d0c8b8;">' + e.date + ':</strong> ' + e.notes.handoff + '</div>'
+      ).join('') +
+    '</div>';
+}
+
+// Init
+updateDisplay();
+</script>
+
+</body>
+</html>
